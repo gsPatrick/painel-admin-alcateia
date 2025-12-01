@@ -3,19 +3,30 @@
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { ResponsiveContainer, AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip } from "recharts";
 import { Button } from "@/components/ui/button";
-import { Calendar } from "lucide-react";
+import { Calendar, BarChart3 } from "lucide-react";
 
-const data = [
-    { name: "01", total: 1200 }, { name: "03", total: 1500 }, { name: "05", total: 1100 },
-    { name: "07", total: 1800 }, { name: "09", total: 2400 }, { name: "11", total: 2100 },
-    { name: "13", total: 2800 }, { name: "15", total: 3200 }, { name: "17", total: 2900 },
-    { name: "19", total: 3500 }, { name: "21", total: 3100 }, { name: "23", total: 3800 },
-    { name: "25", total: 4200 }, { name: "27", total: 3900 }, { name: "30", total: 4500 },
-];
+export function SalesChart({ className, data = [] }) {
+    if (!data || data.length === 0) {
+        return (
+            <Card className={`col-span-4 shadow-sm border-border bg-card flex flex-col ${className}`}>
+                <CardHeader className="flex flex-row items-center justify-between pb-8">
+                    <div className="space-y-1">
+                        <CardTitle className="text-xl font-bold">Receita Recente</CardTitle>
+                        <CardDescription>Performance de vendas nos últimos 30 dias.</CardDescription>
+                    </div>
+                </CardHeader>
+                <CardContent className="pl-0 flex-1 min-h-[300px] flex items-center justify-center">
+                    <div className="flex flex-col items-center justify-center text-muted-foreground">
+                        <BarChart3 className="size-12 mb-4 opacity-20" />
+                        <p className="text-sm font-medium">Nenhum dado de vendas</p>
+                    </div>
+                </CardContent>
+            </Card>
+        );
+    }
 
-export function SalesChart({ className }) {
     return (
-        <Card className={`col-span-4 shadow-lg border-border/50 bg-gradient-to-b from-white to-slate-50 dark:from-zinc-900 dark:to-zinc-950/50 flex flex-col ${className}`}>
+        <Card className={`col-span-4 shadow-sm border-border bg-card flex flex-col ${className}`}>
             <CardHeader className="flex flex-row items-center justify-between pb-8">
                 <div className="space-y-1">
                     <CardTitle className="text-xl font-bold">Receita Recente</CardTitle>
@@ -58,15 +69,15 @@ export function SalesChart({ className }) {
                             <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="var(--border)" opacity={0.3} />
                             <Tooltip
                                 contentStyle={{
-                                    backgroundColor: 'rgba(255, 255, 255, 0.9)',
-                                    borderColor: 'rgba(0,0,0,0.05)',
+                                    backgroundColor: 'var(--background)',
+                                    borderColor: 'var(--border)',
                                     borderRadius: '12px',
                                     boxShadow: '0 10px 30px -10px rgba(0,0,0,0.15)',
                                     padding: '12px 16px',
                                     backdropFilter: 'blur(8px)'
                                 }}
-                                itemStyle={{ color: '#1e293b', fontWeight: 600 }}
-                                labelStyle={{ color: '#64748b', marginBottom: '4px', fontSize: '12px' }}
+                                itemStyle={{ color: 'var(--foreground)', fontWeight: 600 }}
+                                labelStyle={{ color: 'var(--muted-foreground)', marginBottom: '4px', fontSize: '12px' }}
                                 formatter={(value) => [`R$ ${value.toFixed(2)}`, 'Receita']}
                                 cursor={{ stroke: '#6366f1', strokeWidth: 1, strokeDasharray: '4 4' }}
                             />

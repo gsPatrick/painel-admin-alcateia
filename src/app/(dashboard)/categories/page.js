@@ -62,6 +62,19 @@ export default function CategoriesPage() {
         return parent ? parent.name : "Desconhecida";
     };
 
+    const handleDelete = async (id) => {
+        if (confirm("Tem certeza que deseja excluir esta categoria?")) {
+            try {
+                await AppService.deleteCategory(id);
+                toast.success("Categoria excluída com sucesso!");
+                fetchCategories();
+            } catch (error) {
+                console.error("Error deleting category:", error);
+                toast.error("Erro ao excluir categoria.");
+            }
+        }
+    };
+
     const CategoryCard = ({ category, isSub = false }) => (
         <Card
             className="overflow-hidden group hover:shadow-lg transition-all duration-300 border-muted/60 cursor-pointer"
@@ -83,19 +96,21 @@ export default function CategoriesPage() {
                 <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity" onClick={(e) => e.stopPropagation()}>
                     <DropdownMenu>
                         <DropdownMenuTrigger asChild>
-                            <Button variant="secondary" size="icon" className="h-8 w-8 rounded-full bg-white/90 hover:bg-white shadow-sm backdrop-blur-sm">
+                            <Button variant="secondary" size="icon" className="h-8 w-8 rounded-full bg-white/90 hover:bg-white dark:bg-zinc-800/90 dark:hover:bg-zinc-800 shadow-sm backdrop-blur-sm">
                                 <MoreHorizontal className="h-4 w-4 text-foreground" />
                             </Button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end">
                             <DropdownMenuLabel>Ações</DropdownMenuLabel>
                             <DropdownMenuItem><Pencil className="mr-2 h-4 w-4" /> Editar</DropdownMenuItem>
-                            <DropdownMenuItem className="text-destructive"><Trash2 className="mr-2 h-4 w-4" /> Excluir</DropdownMenuItem>
+                            <DropdownMenuItem className="text-destructive" onClick={() => handleDelete(category.id)}>
+                                <Trash2 className="mr-2 h-4 w-4" /> Excluir
+                            </DropdownMenuItem>
                         </DropdownMenuContent>
                     </DropdownMenu>
                 </div>
                 {isSub && (
-                    <Badge variant="secondary" className="absolute top-2 left-2 bg-white/90 hover:bg-white text-xs backdrop-blur-sm shadow-sm">
+                    <Badge variant="secondary" className="absolute top-2 left-2 bg-white/90 hover:bg-white dark:bg-zinc-800/90 dark:hover:bg-zinc-800 text-xs backdrop-blur-sm shadow-sm">
                         {getParentName(category.parentId)}
                     </Badge>
                 )}
@@ -106,7 +121,7 @@ export default function CategoriesPage() {
                         <h3 className="font-semibold text-lg leading-none tracking-tight mb-1">{category.name}</h3>
                         <p className="text-sm text-muted-foreground">{category.productsCount || 0} produtos</p>
                     </div>
-                    <Badge variant="outline" className="bg-emerald-50 text-emerald-700 border-emerald-200 shrink-0">
+                    <Badge variant="outline" className="bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-900/20 dark:text-emerald-300 dark:border-emerald-800 shrink-0">
                         Ativo
                     </Badge>
                 </div>

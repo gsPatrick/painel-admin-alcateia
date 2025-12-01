@@ -17,10 +17,10 @@ export function KPICards({ data }) {
             trend: "+12.5%",
             trendUp: true,
             // Gradient Blue/Purple
-            className: "bg-gradient-to-br from-blue-600 to-violet-600 text-white border-none shadow-xl shadow-blue-500/20",
-            iconBg: "bg-white/20",
-            trendColor: "text-white/90 bg-white/20",
-            color: "text-white" // For modal icon
+            className: "bg-gradient-to-br from-blue-600 to-violet-600 dark:bg-none dark:bg-zinc-900 text-white dark:text-blue-100 border-none dark:border dark:border-blue-800 shadow-xl shadow-blue-500/20",
+            iconBg: "bg-white/20 dark:bg-blue-500/20",
+            trendColor: "text-white/90 bg-white/20 dark:bg-blue-500/20 dark:text-blue-200",
+            color: "text-white dark:text-blue-400" // For modal icon
         },
         {
             title: "Pedidos Pendentes",
@@ -29,10 +29,10 @@ export function KPICards({ data }) {
             trend: "+4",
             trendUp: false,
             // Gradient Orange/Red
-            className: "bg-gradient-to-br from-amber-500 to-orange-600 text-white border-none shadow-xl shadow-orange-500/20",
-            iconBg: "bg-white/20",
-            trendColor: "text-white/90 bg-white/20",
-            color: "text-white"
+            className: "bg-gradient-to-br from-amber-500 to-orange-600 dark:bg-none dark:bg-zinc-900 text-white dark:text-amber-100 border-none dark:border dark:border-amber-800 shadow-xl shadow-orange-500/20",
+            iconBg: "bg-white/20 dark:bg-amber-500/20",
+            trendColor: "text-white/90 bg-white/20 dark:bg-amber-500/20 dark:text-amber-200",
+            color: "text-white dark:text-amber-400"
         },
         {
             title: "Produtos Ativos",
@@ -41,10 +41,10 @@ export function KPICards({ data }) {
             trend: "+2 novos",
             trendUp: true,
             // Gradient Emerald/Teal
-            className: "bg-gradient-to-br from-emerald-500 to-teal-600 text-white border-none shadow-xl shadow-emerald-500/20",
-            iconBg: "bg-white/20",
-            trendColor: "text-white/90 bg-white/20",
-            color: "text-white"
+            className: "bg-gradient-to-br from-emerald-500 to-teal-600 dark:bg-none dark:bg-zinc-900 text-white dark:text-emerald-100 border-none dark:border dark:border-emerald-800 shadow-xl shadow-emerald-500/20",
+            iconBg: "bg-white/20 dark:bg-emerald-500/20",
+            trendColor: "text-white/90 bg-white/20 dark:bg-emerald-500/20 dark:text-emerald-200",
+            color: "text-white dark:text-emerald-400"
         },
         {
             title: "Clientes Totais",
@@ -53,10 +53,10 @@ export function KPICards({ data }) {
             trend: "+18%",
             trendUp: true,
             // Gradient Pink/Rose
-            className: "bg-gradient-to-br from-pink-500 to-rose-600 text-white border-none shadow-xl shadow-pink-500/20",
-            iconBg: "bg-white/20",
-            trendColor: "text-white/90 bg-white/20",
-            color: "text-white"
+            className: "bg-gradient-to-br from-pink-500 to-rose-600 dark:bg-none dark:bg-zinc-900 text-white dark:text-pink-100 border-none dark:border dark:border-pink-800 shadow-xl shadow-pink-500/20",
+            iconBg: "bg-white/20 dark:bg-pink-500/20",
+            trendColor: "text-white/90 bg-white/20 dark:bg-pink-500/20 dark:text-pink-200",
+            color: "text-white dark:text-pink-400"
         },
     ];
 
@@ -76,7 +76,7 @@ export function KPICards({ data }) {
                         <CardContent className="p-6 relative z-10">
                             <div className="flex items-center justify-between">
                                 <div className={cn("p-3 rounded-xl backdrop-blur-sm", kpi.iconBg)}>
-                                    <kpi.icon className="size-6 text-white" />
+                                    <kpi.icon className={cn("size-6", kpi.color)} />
                                 </div>
                                 {kpi.trend && (
                                     <div className={cn("flex items-center gap-1 text-xs font-medium px-2.5 py-1 rounded-full backdrop-blur-sm", kpi.trendColor)}>
@@ -86,8 +86,8 @@ export function KPICards({ data }) {
                                 )}
                             </div>
                             <div className="mt-5">
-                                <p className="text-sm font-medium text-white/80">{kpi.title}</p>
-                                <h3 className="text-3xl font-bold tracking-tight mt-1 text-white">{kpi.value}</h3>
+                                <p className="text-sm font-medium text-white/80 dark:text-muted-foreground">{kpi.title}</p>
+                                <h3 className={cn("text-3xl font-bold tracking-tight mt-1", kpi.color)}>{kpi.value}</h3>
                             </div>
                         </CardContent>
                     </Card>

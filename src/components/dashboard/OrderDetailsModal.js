@@ -6,6 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { Package, Truck, User, CreditCard, ExternalLink } from "lucide-react";
 import Link from "next/link";
+import { getPaymentDetails } from "@/lib/formatters";
 
 export function OrderDetailsModal({ order, open, onOpenChange }) {
     if (!order) return null;
@@ -17,9 +18,9 @@ export function OrderDetailsModal({ order, open, onOpenChange }) {
                     <div className="flex items-center justify-between pr-8">
                         <DialogTitle className="text-xl">Pedido #{order.id}</DialogTitle>
                         <Badge variant="outline" className={`
-                ${order.status === 'completed' ? 'bg-emerald-100 text-emerald-700 border-emerald-200' :
-                                order.status === 'pending' ? 'bg-amber-100 text-amber-700 border-amber-200' :
-                                    'bg-gray-100 text-gray-700'}
+                ${order.status === 'completed' ? 'bg-emerald-100 text-emerald-700 border-emerald-200 dark:bg-emerald-500/20 dark:text-emerald-400 dark:border-emerald-800' :
+                                order.status === 'pending' ? 'bg-amber-100 text-amber-700 border-amber-200 dark:bg-amber-500/20 dark:text-amber-400 dark:border-amber-800' :
+                                    'bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-400'}
             `}>
                             {order.status}
                         </Badge>
@@ -40,6 +41,17 @@ export function OrderDetailsModal({ order, open, onOpenChange }) {
                         </div>
                     </div>
 
+                    {/* Payment Info */}
+                    <div className="flex items-start gap-4 p-4 rounded-lg bg-muted/50">
+                        <CreditCard className="size-5 text-muted-foreground mt-0.5" />
+                        <div>
+                            <h4 className="font-semibold text-sm">Pagamento</h4>
+                            <div className="flex items-center gap-2">
+                                <span className="text-sm text-muted-foreground">{getPaymentDetails(order).label}</span>
+                            </div>
+                        </div>
+                    </div>
+
                     {/* Items (Mocked for now if not in order object) */}
                     <div>
                         <h4 className="font-semibold text-sm mb-3 flex items-center gap-2">
@@ -52,7 +64,14 @@ export function OrderDetailsModal({ order, open, onOpenChange }) {
                                 { name: 'Produto Exemplo B', quantity: 2, price: order.total * 0.2 }
                             ]).map((item, i) => (
                                 <div key={i} className="flex justify-between text-sm">
-                                    <span className="text-muted-foreground">{item.quantity}x {item.name || item.Product?.name}</span>
+                                    <div className="flex flex-col">
+                                        <span className="text-muted-foreground">{item.quantity}x {item.name || item.Product?.name || item.productName}</span>
+                                        {item.attributes_snapshot && (
+                                            <span className="text-xs text-muted-foreground ml-4">
+                                                {Object.entries(item.attributes_snapshot).map(([k, v]) => `${k}: ${v}`).join(', ')}
+                                            </span>
+                                        )}
+                                    </div>
                                     <span className="font-medium">R$ {parseFloat(item.price).toFixed(2)}</span>
                                 </div>
                             ))}

@@ -62,7 +62,7 @@ export function KPIDetailsModal({ kpi, open, onOpenChange }) {
                                     </linearGradient>
                                 </defs>
                                 <Tooltip
-                                    contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 12px rgba(0,0,0,0.1)' }}
+                                    contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 12px rgba(0,0,0,0.1)', backgroundColor: 'var(--background)', color: 'var(--foreground)' }}
                                     cursor={{ stroke: '#6366f1', strokeWidth: 1 }}
                                 />
                                 <Area type="monotone" dataKey="value" stroke="#6366f1" fillOpacity={1} fill="url(#colorValue)" strokeWidth={2} />

@@ -4,7 +4,7 @@
 import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { ResponsiveContainer, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Cell } from "recharts";
-import { Package, AlertTriangle, RefreshCw, PlusCircle, ArrowRight, TrendingUp, TrendingDown } from "lucide-react";
+import { Package, AlertTriangle, RefreshCw, PlusCircle, ArrowRight, TrendingUp, TrendingDown, BarChart3, PackageX } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
@@ -52,7 +52,7 @@ export function ReportsInventoryTab({ data }) {
         <div className="space-y-6">
             {/* KPIs */}
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-                {data.kpis.map((kpi, i) => {
+                {data.kpis?.map((kpi, i) => {
                     const style = kpiStyles[i % kpiStyles.length];
                     return (
                         <Card
@@ -95,24 +95,31 @@ export function ReportsInventoryTab({ data }) {
                         <CardDescription>Quantidade de peças por tempo em estoque.</CardDescription>
                     </CardHeader>
                     <CardContent>
-                        <div className="h-[350px] w-full">
-                            <ResponsiveContainer width="100%" height="100%">
-                                <BarChart data={data.stock_aging} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
-                                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="var(--border)" opacity={0.3} />
-                                    <XAxis dataKey="name" stroke="#94a3b8" fontSize={12} tickLine={false} axisLine={false} />
-                                    <YAxis stroke="#94a3b8" fontSize={12} tickLine={false} axisLine={false} />
-                                    <Tooltip
-                                        cursor={{ fill: 'var(--muted)', opacity: 0.2 }}
-                                        contentStyle={{ backgroundColor: 'rgba(255, 255, 255, 0.9)', borderRadius: '8px', border: 'none', boxShadow: '0 4px 12px rgba(0,0,0,0.1)' }}
-                                    />
-                                    <Bar dataKey="value" radius={[4, 4, 0, 0]}>
-                                        {data.stock_aging.map((entry, index) => (
-                                            <Cell key={`cell-${index}`} fill={index === 3 ? '#ef4444' : index === 2 ? '#f59e0b' : '#10b981'} />
-                                        ))}
-                                    </Bar>
-                                </BarChart>
-                            </ResponsiveContainer>
-                        </div>
+                        {(!data.stock_aging || data.stock_aging.length === 0) ? (
+                            <div className="h-[350px] flex flex-col items-center justify-center text-muted-foreground">
+                                <BarChart3 className="size-12 mb-4 opacity-20" />
+                                <p className="text-sm font-medium">Sem dados de estoque</p>
+                            </div>
+                        ) : (
+                            <div className="h-[350px] w-full">
+                                <ResponsiveContainer width="100%" height="100%">
+                                    <BarChart data={data.stock_aging} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+                                        <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="var(--border)" opacity={0.3} />
+                                        <XAxis dataKey="name" stroke="#94a3b8" fontSize={12} tickLine={false} axisLine={false} />
+                                        <YAxis stroke="#94a3b8" fontSize={12} tickLine={false} axisLine={false} />
+                                        <Tooltip
+                                            cursor={{ fill: 'var(--muted)', opacity: 0.2 }}
+                                            contentStyle={{ backgroundColor: 'rgba(255, 255, 255, 0.9)', borderRadius: '8px', border: 'none', boxShadow: '0 4px 12px rgba(0,0,0,0.1)' }}
+                                        />
+                                        <Bar dataKey="value" radius={[4, 4, 0, 0]}>
+                                            {data.stock_aging.map((entry, index) => (
+                                                <Cell key={`cell-${index}`} fill={index === 3 ? '#ef4444' : index === 2 ? '#f59e0b' : '#10b981'} />
+                                            ))}
+                                        </Bar>
+                                    </BarChart>
+                                </ResponsiveContainer>
+                            </div>
+                        )}
                     </CardContent>
                 </Card>
 
@@ -123,31 +130,38 @@ export function ReportsInventoryTab({ data }) {
                         <CardDescription>Peças paradas com sugestão de desconto.</CardDescription>
                     </CardHeader>
                     <CardContent className="flex-1 overflow-auto">
-                        <div className="space-y-4">
-                            {data.liquidation_suggestions.map((item) => (
-                                <div
-                                    key={item.id}
-                                    className="flex items-center justify-between p-3 border border-border/50 rounded-lg bg-muted/20 hover:bg-muted/40 transition-colors cursor-pointer"
-                                    onClick={() => handleOpenProduct(item)}
-                                >
-                                    <div>
-                                        <p className="font-medium text-sm">{item.name}</p>
-                                        <div className="flex items-center gap-2 mt-1">
-                                            <Badge variant="outline" className="text-xs font-normal text-muted-foreground">
-                                                {item.days_in_stock} dias
-                                            </Badge>
-                                            <span className="text-xs text-muted-foreground line-through">{item.price}</span>
+                        {(!data.liquidation_suggestions || data.liquidation_suggestions.length === 0) ? (
+                            <div className="h-full flex flex-col items-center justify-center text-muted-foreground min-h-[200px]">
+                                <PackageX className="size-10 mb-3 opacity-20" />
+                                <p className="text-sm font-medium">Nenhuma sugestão no momento</p>
+                            </div>
+                        ) : (
+                            <div className="space-y-4">
+                                {data.liquidation_suggestions.map((item) => (
+                                    <div
+                                        key={item.id}
+                                        className="flex items-center justify-between p-3 border border-border/50 rounded-lg bg-muted/20 hover:bg-muted/40 transition-colors cursor-pointer"
+                                        onClick={() => handleOpenProduct(item)}
+                                    >
+                                        <div>
+                                            <p className="font-medium text-sm">{item.name}</p>
+                                            <div className="flex items-center gap-2 mt-1">
+                                                <Badge variant="outline" className="text-xs font-normal text-muted-foreground">
+                                                    {item.days_in_stock} dias
+                                                </Badge>
+                                                <span className="text-xs text-muted-foreground line-through">{item.price}</span>
+                                            </div>
+                                        </div>
+                                        <div className="text-right">
+                                            <Badge variant="destructive" className="mb-1">-{item.suggested_discount}</Badge>
+                                            <Button size="sm" variant="ghost" className="h-6 text-xs px-2 w-full">
+                                                Aplicar <ArrowRight className="size-3 ml-1" />
+                                            </Button>
                                         </div>
                                     </div>
-                                    <div className="text-right">
-                                        <Badge variant="destructive" className="mb-1">-{item.suggested_discount}</Badge>
-                                        <Button size="sm" variant="ghost" className="h-6 text-xs px-2 w-full">
-                                            Aplicar <ArrowRight className="size-3 ml-1" />
-                                        </Button>
-                                    </div>
-                                </div>
-                            ))}
-                        </div>
+                                ))}
+                            </div>
+                        )}
                     </CardContent>
                 </Card>
             </div>

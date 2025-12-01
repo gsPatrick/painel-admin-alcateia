@@ -105,6 +105,8 @@ export function AppSidebar({ isCollapsed, setIsCollapsed }) {
             <div className="space-y-1">
               {group.items.map((item) => {
                 const isActive = pathname === item.href || (item.href !== "/" && pathname.startsWith(item.href));
+                const activeColor = theme?.secondaryColor || "#3b82f6";
+
                 return (
                   <Link
                     key={item.href}
@@ -116,17 +118,17 @@ export function AppSidebar({ isCollapsed, setIsCollapsed }) {
                         : "text-muted-foreground hover:bg-muted hover:text-foreground",
                       isCollapsed && "justify-center px-2"
                     )}
-                    style={isActive && theme.secondaryColor ? { color: theme.secondaryColor, backgroundColor: `${theme.secondaryColor}1A` } : {}}
+                    style={isActive ? { color: activeColor, backgroundColor: `${activeColor}1A` } : {}}
                   >
                     {isActive && !isCollapsed && (
                       <div
                         className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-6 bg-primary rounded-r-full"
-                        style={theme.secondaryColor ? { backgroundColor: theme.secondaryColor } : {}}
+                        style={{ backgroundColor: activeColor }}
                       />
                     )}
                     <item.icon
                       className={cn("size-5 shrink-0 transition-colors", isActive ? "text-primary" : "text-muted-foreground group-hover:text-foreground")}
-                      style={isActive && theme.secondaryColor ? { color: theme.secondaryColor } : {}}
+                      style={isActive ? { color: activeColor } : {}}
                     />
                     {!isCollapsed && <span>{item.title}</span>}
 

@@ -8,11 +8,15 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Upload, Image as ImageIcon, X } from "lucide-react";
+import AppService from "@/services/app.service";
+import { toast } from "sonner";
 
 export function CategoryCreateModal({ open, onOpenChange, onCreate, categories = [], mode = "category", defaultParentId = "none" }) {
     const [name, setName] = useState("");
     const [parentId, setParentId] = useState(defaultParentId);
     const [image, setImage] = useState(null);
+    const [imageFile, setImageFile] = useState(null);
+    const [loading, setLoading] = useState(false);
 
     // Reset state when modal opens or props change
     useEffect(() => {
@@ -20,12 +24,15 @@ export function CategoryCreateModal({ open, onOpenChange, onCreate, categories =
             setName("");
             setParentId(defaultParentId);
             setImage(null);
+            setImageFile(null);
+            setLoading(false);
         }
     }, [open, defaultParentId]);
 
     const handleImageUpload = (e) => {
         const file = e.target.files[0];
         if (file) {
+            setImageFile(file);
             const reader = new FileReader();
             reader.onloadend = () => {
                 setImage(reader.result);
@@ -34,18 +41,33 @@ export function CategoryCreateModal({ open, onOpenChange, onCreate, categories =
         }
     };
 
-    const handleSubmit = () => {
+    const handleSubmit = async () => {
         if (!name) return;
+        setLoading(true);
 
-        const newCategory = {
-            id: `cat_${Date.now()} `,
-            name,
-            parentId: mode === "category" ? null : (parentId === "none" ? null : parentId),
-            image
-        };
+        try {
+            let imageUrl = null;
+            if (imageFile) {
+                const uploadResult = await AppService.uploadFile(imageFile);
+                imageUrl = uploadResult.url;
+            }
 
-        onCreate(newCategory);
-        onOpenChange(false);
+            const payload = {
+                name,
+                parentId: mode === "category" ? null : (parentId === "none" ? null : parentId),
+                image: imageUrl
+            };
+
+            await AppService.createCategory(payload);
+            toast.success("Categoria criada com sucesso!");
+            onCreate(); // Refresh list
+            onOpenChange(false);
+        } catch (error) {
+            console.error("Error creating category:", error);
+            toast.error("Erro ao criar categoria.");
+        } finally {
+            setLoading(false);
+        }
     };
 
     // Only show root categories as potential parents
@@ -125,8 +147,10 @@ export function CategoryCreateModal({ open, onOpenChange, onCreate, categories =
                     )}
                 </div>
                 <DialogFooter>
-                    <Button variant="outline" onClick={() => onOpenChange(false)}>Cancelar</Button>
-                    <Button onClick={handleSubmit} disabled={!name}>Criar</Button>
+                    <Button variant="outline" onClick={() => onOpenChange(false)} disabled={loading}>Cancelar</Button>
+                    <Button onClick={handleSubmit} disabled={!name || loading}>
+                        {loading ? "Criando..." : "Criar"}
+                    </Button>
                 </DialogFooter>
             </DialogContent>
         </Dialog>

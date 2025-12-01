@@ -69,6 +69,7 @@ import Link from "next/link";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { toast } from "sonner";
+import { getPaymentDetails } from "@/lib/formatters";
 
 export default function OrderDetailsPage() {
     const params = useParams();
@@ -187,6 +188,18 @@ export default function OrderDetailsPage() {
         if (score === 'low') return <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200"><ShieldCheck className="w-3 h-3 mr-1" /> Baixo Risco</Badge>;
         if (score === 'medium') return <Badge variant="outline" className="bg-yellow-50 text-yellow-700 border-yellow-200"><ShieldAlert className="w-3 h-3 mr-1" /> Risco Médio</Badge>;
         return <Badge variant="destructive"><ShieldAlert className="w-3 h-3 mr-1" /> Alto Risco</Badge>;
+    };
+
+    const getPaymentMethodDisplay = (order) => {
+        const details = getPaymentDetails(order);
+        const Icon = details.icon;
+
+        return (
+            <div className="flex items-center gap-1">
+                <Icon className="h-4 w-4 text-muted-foreground" />
+                <span className="text-sm font-medium">{details.label}</span>
+            </div>
+        );
     };
 
     return (
@@ -334,8 +347,15 @@ export default function OrderDetailsPage() {
                                                     <span className="text-sm text-muted-foreground">
                                                         {item.variant}
                                                     </span>
-                                                    <div className="flex gap-2 mt-1">
+                                                    <div className="flex gap-2 mt-1 flex-wrap">
                                                         {item.sku && <span className="text-xs text-muted-foreground bg-muted px-1 rounded">SKU: {item.sku}</span>}
+                                                        {item.attributes_snapshot && typeof item.attributes_snapshot === 'object' && (
+                                                            Object.entries(item.attributes_snapshot).map(([key, value]) => (
+                                                                <span key={key} className="text-xs text-muted-foreground bg-muted px-1 rounded">
+                                                                    {key}: {value}
+                                                                </span>
+                                                            ))
+                                                        )}
                                                         {item.type === "Brechó" && (
                                                             <Badge variant="secondary" className="text-[10px] px-1 py-0 bg-purple-100 text-purple-700">
                                                                 Peça Única
@@ -396,9 +416,7 @@ export default function OrderDetailsPage() {
                                 <div className="flex flex-col gap-1">
                                     <div className="flex items-center gap-2">
                                         <CreditCard className="h-4 w-4 text-muted-foreground" />
-                                        <span className="text-sm font-medium">
-                                            {order.paymentDetails?.method === 'pix' ? 'Pix' : 'Cartão de Crédito'}
-                                        </span>
+                                        {getPaymentMethodDisplay(order)}
                                     </div>
                                     {order.paymentDetails?.cardLast4 && (
                                         <span className="text-sm text-muted-foreground ml-6">**** {order.paymentDetails.cardLast4}</span>

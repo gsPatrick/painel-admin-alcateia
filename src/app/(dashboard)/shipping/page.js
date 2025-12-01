@@ -96,11 +96,11 @@ export default function ShippingPage() {
             </div>
 
             {/* Global Configuration Card */}
-            <Card className="bg-slate-50 border-slate-200">
+            <Card className="bg-slate-50 border-slate-200 dark:bg-slate-900/20 dark:border-slate-800">
                 <CardHeader className="pb-3">
                     <div className="flex items-center gap-2">
-                        <Settings2 className="h-5 w-5 text-slate-600" />
-                        <CardTitle className="text-base font-medium text-slate-800">Configuração Global (Fallback)</CardTitle>
+                        <Settings2 className="h-5 w-5 text-slate-600 dark:text-slate-400" />
+                        <CardTitle className="text-base font-medium text-slate-800 dark:text-slate-200">Configuração Global (Fallback)</CardTitle>
                     </div>
                 </CardHeader>
                 <CardContent>
@@ -130,7 +130,7 @@ export default function ShippingPage() {
             </Card>
 
             {/* Rules Table */}
-            <div className="rounded-md border bg-white">
+            <div className="rounded-md border bg-card">
                 <Table>
                     <TableHeader>
                         <TableRow>

@@ -33,9 +33,14 @@ const AppService = {
     },
 
     // --- Products ---
-    getProducts: async () => {
-        const response = await api.get('/products');
-        return response.data;
+    getProducts: async (params = {}) => {
+        const query = new URLSearchParams();
+        if (params.category && params.category !== 'all') query.append('category', params.category);
+        if (params.status && params.status !== 'all') query.append('status', params.status);
+        if (params.search) query.append('search', params.search);
+
+        const response = await api.get(`/products?${query.toString()}`);
+        return response.data.data || response.data;
     },
 
     getProductById: async (id) => {
@@ -191,6 +196,32 @@ const AppService = {
     deleteCoupon: async (id) => {
         const response = await api.delete(`/coupons/${id}`);
         return response.data;
+    },
+    // --- Analytics ---
+    getAnalyticsReports: async (startDate, endDate) => {
+        const query = new URLSearchParams();
+        if (startDate) query.append('startDate', startDate);
+        if (endDate) query.append('endDate', endDate);
+
+        const response = await api.get(`/analytics/reports/sales?${query.toString()}`);
+        return response.data;
+    },
+
+    getProductPerformance: async () => {
+        const response = await api.get('/analytics/reports/products');
+        return response.data;
+    },
+
+    // --- Upload ---
+    uploadFile: async (file) => {
+        const formData = new FormData();
+        formData.append('file', file);
+        const response = await api.post('/upload', formData, {
+            headers: {
+                'Content-Type': 'multipart/form-data'
+            }
+        });
+        return response.data; // Expected { url: '...' }
     }
 };
 

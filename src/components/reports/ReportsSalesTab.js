@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { ResponsiveContainer, AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, PieChart, Pie, Cell, Legend } from "recharts";
-import { TrendingUp, TrendingDown, DollarSign, ShoppingCart, Percent, CreditCard } from "lucide-react";
+import { TrendingUp, TrendingDown, DollarSign, ShoppingCart, Percent, CreditCard, BarChart3, PieChart as PieChartIcon, ShoppingBag } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { cn } from "@/lib/utils";
 import { ReportProductModal } from "./ReportProductModal";
@@ -40,7 +40,7 @@ export function ReportsSalesTab({ data }) {
         <div className="space-y-6">
             {/* KPIs */}
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-                {data.kpis.map((kpi, i) => {
+                {data.kpis?.map((kpi, i) => {
                     const style = kpiStyles[i % kpiStyles.length];
                     return (
                         <Card
@@ -84,26 +84,33 @@ export function ReportsSalesTab({ data }) {
                         <CardDescription>Faturamento diário nos últimos 30 dias.</CardDescription>
                     </CardHeader>
                     <CardContent className="pl-0">
-                        <div className="h-[350px] w-full">
-                            <ResponsiveContainer width="100%" height="100%">
-                                <AreaChart data={data.revenue_evolution} margin={{ top: 10, right: 30, left: 0, bottom: 0 }}>
-                                    <defs>
-                                        <linearGradient id="colorRevenue" x1="0" y1="0" x2="0" y2="1">
-                                            <stop offset="5%" stopColor="#6366f1" stopOpacity={0.4} />
-                                            <stop offset="95%" stopColor="#6366f1" stopOpacity={0} />
-                                        </linearGradient>
-                                    </defs>
-                                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="var(--border)" opacity={0.3} />
-                                    <XAxis dataKey="date" stroke="#94a3b8" fontSize={12} tickLine={false} axisLine={false} minTickGap={30} />
-                                    <YAxis stroke="#94a3b8" fontSize={12} tickLine={false} axisLine={false} tickFormatter={(value) => `R$${value / 1000}k`} />
-                                    <Tooltip
-                                        contentStyle={{ backgroundColor: 'rgba(255, 255, 255, 0.95)', borderRadius: '12px', border: 'none', boxShadow: '0 10px 30px rgba(0,0,0,0.1)' }}
-                                        formatter={(value) => [`R$ ${value.toLocaleString()}`, 'Receita']}
-                                    />
-                                    <Area type="monotone" dataKey="value" stroke="#6366f1" strokeWidth={3} fillOpacity={1} fill="url(#colorRevenue)" />
-                                </AreaChart>
-                            </ResponsiveContainer>
-                        </div>
+                        {(!data.revenue_evolution || data.revenue_evolution.length === 0) ? (
+                            <div className="h-[350px] flex flex-col items-center justify-center text-muted-foreground">
+                                <BarChart3 className="size-12 mb-4 opacity-20" />
+                                <p className="text-sm font-medium">Sem dados de receita</p>
+                            </div>
+                        ) : (
+                            <div className="h-[350px] w-full">
+                                <ResponsiveContainer width="100%" height="100%">
+                                    <AreaChart data={data.revenue_evolution} margin={{ top: 10, right: 30, left: 0, bottom: 0 }}>
+                                        <defs>
+                                            <linearGradient id="colorRevenue" x1="0" y1="0" x2="0" y2="1">
+                                                <stop offset="5%" stopColor="#6366f1" stopOpacity={0.4} />
+                                                <stop offset="95%" stopColor="#6366f1" stopOpacity={0} />
+                                            </linearGradient>
+                                        </defs>
+                                        <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="var(--border)" opacity={0.3} />
+                                        <XAxis dataKey="date" stroke="#94a3b8" fontSize={12} tickLine={false} axisLine={false} minTickGap={30} />
+                                        <YAxis stroke="#94a3b8" fontSize={12} tickLine={false} axisLine={false} tickFormatter={(value) => `R$${value / 1000}k`} />
+                                        <Tooltip
+                                            contentStyle={{ backgroundColor: 'rgba(255, 255, 255, 0.95)', borderRadius: '12px', border: 'none', boxShadow: '0 10px 30px rgba(0,0,0,0.1)' }}
+                                            formatter={(value) => [`R$ ${value.toLocaleString()}`, 'Receita']}
+                                        />
+                                        <Area type="monotone" dataKey="value" stroke="#6366f1" strokeWidth={3} fillOpacity={1} fill="url(#colorRevenue)" />
+                                    </AreaChart>
+                                </ResponsiveContainer>
+                            </div>
+                        )}
                     </CardContent>
                 </Card>
 
@@ -114,30 +121,37 @@ export function ReportsSalesTab({ data }) {
                         <CardDescription>Participação na receita total.</CardDescription>
                     </CardHeader>
                     <CardContent>
-                        <div className="h-[350px] w-full">
-                            <ResponsiveContainer width="100%" height="100%">
-                                <PieChart>
-                                    <Pie
-                                        data={data.sales_by_category}
-                                        cx="50%"
-                                        cy="50%"
-                                        innerRadius={80}
-                                        outerRadius={110}
-                                        paddingAngle={5}
-                                        dataKey="value"
-                                    >
-                                        {data.sales_by_category.map((entry, index) => (
-                                            <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} strokeWidth={0} />
-                                        ))}
-                                    </Pie>
-                                    <Tooltip
-                                        contentStyle={{ backgroundColor: 'rgba(255, 255, 255, 0.95)', borderRadius: '12px', border: 'none', boxShadow: '0 10px 30px rgba(0,0,0,0.1)' }}
-                                        formatter={(value) => `R$ ${value.toLocaleString()}`}
-                                    />
-                                    <Legend verticalAlign="bottom" height={36} iconType="circle" />
-                                </PieChart>
-                            </ResponsiveContainer>
-                        </div>
+                        {(!data.sales_by_category || data.sales_by_category.length === 0) ? (
+                            <div className="h-[350px] flex flex-col items-center justify-center text-muted-foreground">
+                                <PieChartIcon className="size-12 mb-4 opacity-20" />
+                                <p className="text-sm font-medium">Sem dados de categoria</p>
+                            </div>
+                        ) : (
+                            <div className="h-[350px] w-full">
+                                <ResponsiveContainer width="100%" height="100%">
+                                    <PieChart>
+                                        <Pie
+                                            data={data.sales_by_category}
+                                            cx="50%"
+                                            cy="50%"
+                                            innerRadius={80}
+                                            outerRadius={110}
+                                            paddingAngle={5}
+                                            dataKey="value"
+                                        >
+                                            {data.sales_by_category.map((entry, index) => (
+                                                <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} strokeWidth={0} />
+                                            ))}
+                                        </Pie>
+                                        <Tooltip
+                                            contentStyle={{ backgroundColor: 'rgba(255, 255, 255, 0.95)', borderRadius: '12px', border: 'none', boxShadow: '0 10px 30px rgba(0,0,0,0.1)' }}
+                                            formatter={(value) => `R$ ${value.toLocaleString()}`}
+                                        />
+                                        <Legend verticalAlign="bottom" height={36} iconType="circle" />
+                                    </PieChart>
+                                </ResponsiveContainer>
+                            </div>
+                        )}
                     </CardContent>
                 </Card>
             </div>
@@ -149,30 +163,37 @@ export function ReportsSalesTab({ data }) {
                     <CardDescription>Clique no produto para ver detalhes completos.</CardDescription>
                 </CardHeader>
                 <CardContent>
-                    <div className="space-y-2">
-                        {data.top_products.map((product) => (
-                            <div
-                                key={product.id}
-                                className="flex items-center justify-between p-3 hover:bg-muted/50 rounded-xl transition-all cursor-pointer border border-transparent hover:border-border/50 hover:shadow-sm"
-                                onClick={() => setSelectedProduct(product)}
-                            >
-                                <div className="flex items-center gap-4">
-                                    <Avatar className="h-12 w-12 rounded-xl border border-border/50 shadow-sm">
-                                        <AvatarImage src={product.image} alt={product.name} className="object-cover" />
-                                        <AvatarFallback>PD</AvatarFallback>
-                                    </Avatar>
-                                    <div>
-                                        <p className="font-semibold text-sm text-foreground">{product.name}</p>
-                                        <p className="text-xs text-muted-foreground mt-0.5">Estoque: {product.stock} un.</p>
+                    {(!data.top_products || data.top_products.length === 0) ? (
+                        <div className="h-full flex flex-col items-center justify-center text-muted-foreground min-h-[200px]">
+                            <ShoppingBag className="size-10 mb-3 opacity-20" />
+                            <p className="text-sm font-medium">Nenhum produto vendido ainda</p>
+                        </div>
+                    ) : (
+                        <div className="space-y-2">
+                            {data.top_products.map((product) => (
+                                <div
+                                    key={product.id}
+                                    className="flex items-center justify-between p-3 hover:bg-muted/50 rounded-xl transition-all cursor-pointer border border-transparent hover:border-border/50 hover:shadow-sm"
+                                    onClick={() => setSelectedProduct(product)}
+                                >
+                                    <div className="flex items-center gap-4">
+                                        <Avatar className="h-12 w-12 rounded-xl border border-border/50 shadow-sm">
+                                            <AvatarImage src={product.image} alt={product.name} className="object-cover" />
+                                            <AvatarFallback>PD</AvatarFallback>
+                                        </Avatar>
+                                        <div>
+                                            <p className="font-semibold text-sm text-foreground">{product.name}</p>
+                                            <p className="text-xs text-muted-foreground mt-0.5">Estoque: {product.stock} un.</p>
+                                        </div>
+                                    </div>
+                                    <div className="text-right">
+                                        <p className="font-bold font-mono text-sm text-primary">{product.revenue}</p>
+                                        <p className="text-xs text-muted-foreground mt-0.5">{product.sales} vendas</p>
                                     </div>
                                 </div>
-                                <div className="text-right">
-                                    <p className="font-bold font-mono text-sm text-primary">{product.revenue}</p>
-                                    <p className="text-xs text-muted-foreground mt-0.5">{product.sales} vendas</p>
-                                </div>
-                            </div>
-                        ))}
-                    </div>
+                            ))}
+                        </div>
+                    )}
                 </CardContent>
             </Card>
 

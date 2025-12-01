@@ -29,10 +29,25 @@ export default function ProductsPage() {
             setIsLoading(true);
             try {
                 const [productsData, categoriesData] = await Promise.all([
-                    AppService.getProducts(),
+                    AppService.getProducts({
+                        search: searchTerm,
+                        category: categoryFilter,
+                        status: statusFilter
+                    }),
                     AppService.getCategories()
                 ]);
-                setProducts(productsData || []);
+                // Handle potential different response structures (array vs object with products key)
+                // The service now handles data.data, but we keep this check for robustness
+                let validProducts = [];
+                if (Array.isArray(productsData)) {
+                    validProducts = productsData;
+                } else if (productsData && Array.isArray(productsData.products)) {
+                    validProducts = productsData.products;
+                } else if (productsData && Array.isArray(productsData.data)) {
+                    validProducts = productsData.data;
+                }
+
+                setProducts(validProducts);
                 setCategories(categoriesData || []);
             } catch (error) {
                 console.error("Error fetching data:", error);
@@ -41,7 +56,14 @@ export default function ProductsPage() {
                 setIsLoading(false);
             }
         };
-    }, []);
+
+        // Debounce search to avoid too many requests
+        const timeoutId = setTimeout(() => {
+            fetchData();
+        }, 500);
+
+        return () => clearTimeout(timeoutId);
+    }, [searchTerm, categoryFilter, statusFilter]);
 
     const handleDelete = async (id) => {
         if (!confirm("Tem certeza que deseja excluir este produto?")) return;
@@ -61,41 +83,41 @@ export default function ProductsPage() {
         ? categories.filter(c => c.parentId === categoryFilter)
         : [];
 
-    // Filter Logic
+    // Client-side filtering for Performance only (since API handles others)
     const filteredProducts = products.filter(product => {
-        const matchesSearch = product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            (product.sku && product.sku.toLowerCase().includes(searchTerm.toLowerCase()));
-
-        // Check if category matches (handling both ID and object if populated)
-        const productCategoryId = typeof product.category === 'object' ? product.category?.id : product.category;
-        // Also check if product.categoryId exists (common in sequelize)
-        const finalProductId = product.categoryId || productCategoryId;
-
-        const matchesCategory = categoryFilter === "all" || finalProductId == categoryFilter;
-
-        const matchesStatus = statusFilter === "all" || product.status === statusFilter;
-
         // Mock Performance Logic (can be updated with real analytics later)
         let matchesPerformance = true;
         if (performanceFilter === "best_sellers") matchesPerformance = product.stock < 50;
         if (performanceFilter === "low_stock") matchesPerformance = product.stock < 20;
         if (performanceFilter === "no_stock") matchesPerformance = product.stock === 0;
 
-        return matchesSearch && matchesCategory && matchesStatus && matchesPerformance;
+        return matchesPerformance;
     });
 
     const rootCategories = categories.filter(c => !c.parentId);
 
     const getCategoryName = (product) => {
-        if (product.Category) return product.Category.name;
-        if (product.category && typeof product.category === 'object') return product.category.name;
-        // If it's an ID, find it in categories list
-        const cat = categories.find(c => c.id === product.categoryId || c.id === product.category);
-        return cat ? cat.name : "Sem Categoria";
+        // 1. Prioritize string category from API (legacy/simple)
+        if (typeof product.category === 'string') return product.category;
+
+        // 2. Try nested object
+        if (product.Category && product.Category.name) return product.Category.name;
+
+        // 3. Try direct property if it's an object
+        if (product.category && typeof product.category === 'object' && product.category.name) return product.category.name;
+
+        // 4. Try ID lookup
+        const catId = product.categoryId || (typeof product.category !== 'object' ? product.category : null);
+        if (catId) {
+            const cat = categories.find(c => c.id === catId);
+            return cat ? cat.name : "Sem Categoria";
+        }
+
+        return "Sem Categoria";
     };
 
     const getProductImage = (product) => {
-        if (product.images && product.images.length > 0) return product.images[0];
+        if (product.images && Array.isArray(product.images) && product.images.length > 0) return product.images[0];
         if (product.image) return product.image;
         return "https://placehold.co/100?text=No+Image";
     };
@@ -242,7 +264,7 @@ export default function ProductsPage() {
                 </CardContent>
             </Card>
 
-            <div className="border rounded-md bg-white shadow-sm overflow-hidden">
+            <div className="border rounded-md bg-card shadow-sm overflow-hidden">
                 <Table>
                     <TableHeader>
                         <TableRow className="bg-muted/50 hover:bg-muted/50">

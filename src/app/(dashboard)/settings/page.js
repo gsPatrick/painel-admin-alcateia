@@ -55,7 +55,6 @@ export default function SettingsPage() {
         try {
             // Simulate saving each section
             await AppService.updateSettings('identity', settings.identity);
-            await AppService.updateSettings('integrations', settings.integrations);
             await AppService.updateSettings('seo', settings.seo);
             toast.success("Configurações salvas com sucesso!");
         } catch (error) {
@@ -90,9 +89,6 @@ export default function SettingsPage() {
                 <TabsList>
                     <TabsTrigger value="identity" className="flex items-center gap-2">
                         <Palette className="h-4 w-4" /> Identidade & Tema
-                    </TabsTrigger>
-                    <TabsTrigger value="integrations" className="flex items-center gap-2">
-                        <Share2 className="h-4 w-4" /> Integrações
                     </TabsTrigger>
                     <TabsTrigger value="seo" className="flex items-center gap-2">
                         <Globe className="h-4 w-4" /> Contato & SEO
@@ -135,21 +131,7 @@ export default function SettingsPage() {
                             <CardContent className="space-y-6">
                                 <div className="flex items-center justify-between">
                                     <div className="space-y-1">
-                                        <Label>Cor Primária</Label>
-                                        <div className="text-xs text-muted-foreground">{settings.identity.primaryColor}</div>
-                                    </div>
-                                    <div className="flex items-center gap-2">
-                                        <Input
-                                            type="color"
-                                            className="h-10 w-20 p-1 cursor-pointer"
-                                            value={settings.identity.primaryColor}
-                                            onChange={(e) => handleIdentityChange('primaryColor', e.target.value)}
-                                        />
-                                    </div>
-                                </div>
-                                <div className="flex items-center justify-between">
-                                    <div className="space-y-1">
-                                        <Label>Cor Secundária</Label>
+                                        <Label>Cor da Marca</Label>
                                         <div className="text-xs text-muted-foreground">{settings.identity.secondaryColor}</div>
                                     </div>
                                     <div className="flex items-center gap-2">
@@ -167,7 +149,7 @@ export default function SettingsPage() {
                                 <div className="space-y-2">
                                     <Label>Preview</Label>
                                     <div className="p-4 border rounded-lg flex items-center gap-4 justify-center bg-background">
-                                        <Button style={{ backgroundColor: settings.identity.primaryColor }}>Botão Primário</Button>
+                                        <Button style={{ backgroundColor: theme.primaryColor }}>Botão Primário</Button>
                                         <div className="px-2.5 py-0.5 text-xs font-semibold rounded-full text-white" style={{ backgroundColor: settings.identity.secondaryColor }}>
                                             Badge Secundário
                                         </div>
@@ -178,57 +160,7 @@ export default function SettingsPage() {
                     </div>
                 </TabsContent>
 
-                {/* ABA 2: INTEGRAÇÕES */}
-                <TabsContent value="integrations" className="space-y-4">
-                    <Card>
-                        <CardHeader>
-                            <CardTitle>Brechó Engine</CardTitle>
-                            <CardDescription>Conecte-se ao motor de precificação e consignação.</CardDescription>
-                        </CardHeader>
-                        <CardContent className="space-y-4">
-                            <div className="grid grid-cols-2 gap-4">
-                                <div className="space-y-2">
-                                    <Label>API URL</Label>
-                                    <Input
-                                        value={settings.integrations.brechoApiUrl}
-                                        onChange={(e) => handleInputChange('integrations', 'brechoApiUrl', e.target.value)}
-                                    />
-                                </div>
-                                <div className="space-y-2">
-                                    <Label>API Key</Label>
-                                    <Input
-                                        type="password"
-                                        value={settings.integrations.brechoApiKey}
-                                        onChange={(e) => handleInputChange('integrations', 'brechoApiKey', e.target.value)}
-                                    />
-                                </div>
-                            </div>
-                            <Button variant="outline" size="sm">Verificar Conexão</Button>
-                        </CardContent>
-                    </Card>
-                    <Card>
-                        <CardHeader>
-                            <CardTitle>Gateways de Pagamento</CardTitle>
-                        </CardHeader>
-                        <CardContent className="space-y-4">
-                            <div className="space-y-2">
-                                <Label>MercadoPago Token</Label>
-                                <Input
-                                    type="password"
-                                    value={settings.integrations.mercadoPagoToken}
-                                    onChange={(e) => handleInputChange('integrations', 'mercadoPagoToken', e.target.value)}
-                                />
-                            </div>
-                            <div className="space-y-2">
-                                <Label>Chave Pix</Label>
-                                <Input
-                                    value={settings.integrations.pixKey}
-                                    onChange={(e) => handleInputChange('integrations', 'pixKey', e.target.value)}
-                                />
-                            </div>
-                        </CardContent>
-                    </Card>
-                </TabsContent>
+
 
                 {/* ABA 3: CONTATO & SEO */}
                 <TabsContent value="seo" className="space-y-4">

@@ -52,7 +52,27 @@ export default function CouponsPage() {
         setLoading(true);
         try {
             const data = await AppService.getCoupons();
-            setCoupons(data || []);
+            // Adapter: snake_case (API) -> camelCase (Front)
+            const adaptedCoupons = (data || []).map(coupon => {
+                const endDate = coupon.end_date ? new Date(coupon.end_date) : null;
+                const isExpired = endDate && endDate < new Date();
+
+                return {
+                    id: coupon.id,
+                    code: coupon.code,
+                    description: coupon.description,
+                    type: coupon.type === 'percent' ? 'percentage' : coupon.type, // Adapter for Enum
+                    value: parseFloat(coupon.value),
+                    usageLimit: coupon.usage_limit || 0,
+                    usageCount: coupon.usage_count || 0,
+                    minOrderValue: parseFloat(coupon.min_purchase || 0),
+                    startDate: coupon.start_date,
+                    endDate: coupon.end_date,
+                    isMain: coupon.is_main, // Adapter
+                    status: isExpired ? 'expired' : (coupon.status || 'active')
+                };
+            });
+            setCoupons(adaptedCoupons);
         } catch (error) {
             console.error("Failed to fetch coupons:", error);
             toast.error("Erro ao carregar cupons.");
@@ -118,6 +138,11 @@ export default function CouponsPage() {
         toast.success("Código copiado!");
     };
 
+    // Calculate KPIs
+    const activeCount = coupons.filter(c => c.status === 'active').length;
+    const totalUses = coupons.reduce((acc, curr) => acc + (curr.usageCount || 0), 0);
+    const topCoupon = [...coupons].sort((a, b) => b.usageCount - a.usageCount)[0];
+
     return (
         <div className="flex-1 space-y-4 p-8 pt-6">
             <div className="flex items-center justify-between space-y-2">
@@ -144,40 +169,44 @@ export default function CouponsPage() {
 
             {/* Stats Cards */}
             <div className="grid gap-4 md:grid-cols-3">
-                <Card className="bg-gradient-to-br from-green-50 to-emerald-100 border-green-200 shadow-sm">
+                <Card className="bg-gradient-to-br from-green-50 to-emerald-100 border-green-200 dark:from-green-900/20 dark:to-emerald-900/10 dark:border-green-800 shadow-sm">
                     <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                        <CardTitle className="text-sm font-medium text-green-900">Ativos Agora</CardTitle>
-                        <div className="h-8 w-8 rounded-full bg-green-200 flex items-center justify-center">
-                            <Tag className="h-4 w-4 text-green-700" />
+                        <CardTitle className="text-sm font-medium text-green-900 dark:text-green-100">Ativos Agora</CardTitle>
+                        <div className="h-8 w-8 rounded-full bg-green-200 dark:bg-green-800 flex items-center justify-center">
+                            <Tag className="h-4 w-4 text-green-700 dark:text-green-300" />
                         </div>
                     </CardHeader>
                     <CardContent>
-                        <div className="text-3xl font-bold text-green-900">{coupons.filter(c => c.status === 'active').length}</div>
-                        <p className="text-xs text-green-700 mt-1 font-medium">Cupons disponíveis para uso</p>
+                        <div className="text-3xl font-bold text-green-900 dark:text-green-100">{activeCount}</div>
+                        <p className="text-xs text-green-700 dark:text-green-300 mt-1 font-medium">Cupons disponíveis para uso</p>
                     </CardContent>
                 </Card>
-                <Card className="bg-gradient-to-br from-blue-50 to-indigo-100 border-blue-200 shadow-sm">
+                <Card className="bg-gradient-to-br from-blue-50 to-indigo-100 border-blue-200 dark:from-blue-900/20 dark:to-indigo-900/10 dark:border-blue-800 shadow-sm">
                     <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                        <CardTitle className="text-sm font-medium text-blue-900">Descontos no Mês</CardTitle>
-                        <div className="h-8 w-8 rounded-full bg-blue-200 flex items-center justify-center">
-                            <TrendingUp className="h-4 w-4 text-blue-700" />
+                        <CardTitle className="text-sm font-medium text-blue-900 dark:text-blue-100">Total de Usos</CardTitle>
+                        <div className="h-8 w-8 rounded-full bg-blue-200 dark:bg-blue-800 flex items-center justify-center">
+                            <TrendingUp className="h-4 w-4 text-blue-700 dark:text-blue-300" />
                         </div>
                     </CardHeader>
                     <CardContent>
-                        <div className="text-3xl font-bold text-blue-900">R$ 1.250,00</div>
-                        <p className="text-xs text-blue-700 mt-1 font-medium">+20.1% em relação ao mês passado</p>
+                        <div className="text-3xl font-bold text-blue-900 dark:text-blue-100">{totalUses}</div>
+                        <p className="text-xs text-blue-700 dark:text-blue-300 mt-1 font-medium">Usos totais na plataforma</p>
                     </CardContent>
                 </Card>
-                <Card className="bg-gradient-to-br from-purple-50 to-fuchsia-100 border-purple-200 shadow-sm">
+                <Card className="bg-gradient-to-br from-purple-50 to-fuchsia-100 border-purple-200 dark:from-purple-900/20 dark:to-fuchsia-900/10 dark:border-purple-800 shadow-sm">
                     <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                        <CardTitle className="text-sm font-medium text-purple-900">Cupom Mais Usado</CardTitle>
-                        <div className="h-8 w-8 rounded-full bg-purple-200 flex items-center justify-center">
-                            <CheckCircle2 className="h-4 w-4 text-purple-700" />
+                        <CardTitle className="text-sm font-medium text-purple-900 dark:text-purple-100">Cupom Mais Usado</CardTitle>
+                        <div className="h-8 w-8 rounded-full bg-purple-200 dark:bg-purple-800 flex items-center justify-center">
+                            <CheckCircle2 className="h-4 w-4 text-purple-700 dark:text-purple-300" />
                         </div>
                     </CardHeader>
                     <CardContent>
-                        <div className="text-2xl font-bold text-purple-900 truncate" title="BOASVINDAS10">BOASVINDAS10</div>
-                        <p className="text-xs text-purple-700 mt-1 font-medium">45 usos este mês</p>
+                        <div className="text-2xl font-bold text-purple-900 dark:text-purple-100 truncate" title={topCoupon?.code || "---"}>
+                            {topCoupon?.code || "---"}
+                        </div>
+                        <p className="text-xs text-purple-700 dark:text-purple-300 mt-1 font-medium">
+                            {topCoupon ? `${topCoupon.usageCount} usos este mês` : "Nenhum uso registrado"}
+                        </p>
                     </CardContent>
                 </Card>
             </div>
@@ -224,6 +253,11 @@ export default function CouponsPage() {
                                         <TableCell>
                                             <div className="flex items-center gap-2">
                                                 <span className="font-mono font-medium">{coupon.code}</span>
+                                                {coupon.isMain && (
+                                                    <Badge variant="secondary" className="bg-purple-100 text-purple-700 hover:bg-purple-200 border-purple-200 dark:bg-purple-900/30 dark:text-purple-300 dark:border-purple-800 text-[10px] h-5 px-1.5">
+                                                        Principal
+                                                    </Badge>
+                                                )}
                                                 <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => copyToClipboard(coupon.code)}>
                                                     <Copy className="h-3 w-3" />
                                                 </Button>

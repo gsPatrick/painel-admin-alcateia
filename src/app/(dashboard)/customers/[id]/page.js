@@ -106,6 +106,20 @@ export default function CustomerProfilePage() {
         }
     }, [params.id, router]);
 
+    // Calculate Metrics if not provided by API
+    const calculateMetrics = () => {
+        if (!customer) return { ltv: 0, avgTicket: 0, ordersCount: 0 };
+
+        const orders = customer.orders || [];
+        const ordersCount = orders.length;
+        const ltv = customer.ltv || orders.reduce((acc, order) => acc + parseFloat(order.total || 0), 0);
+        const avgTicket = ordersCount > 0 ? ltv / ordersCount : 0;
+
+        return { ltv, avgTicket, ordersCount };
+    };
+
+    const metrics = calculateMetrics();
+
     const handleAddNote = () => {
         if (!noteText.trim()) return;
         const newNote = {
@@ -232,42 +246,41 @@ export default function CustomerProfilePage() {
                 <div className="md:col-span-2 space-y-4">
                     {/* Metrics Cards */}
                     <div className="grid gap-4 md:grid-cols-3">
-                        <Card className="bg-blue-50 border-blue-100">
+                        <Card className="bg-blue-50 border-blue-100 dark:bg-blue-900/10 dark:border-blue-800">
                             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                                <CardTitle className="text-sm font-medium text-blue-900">Total Gasto (LTV)</CardTitle>
-                                <TrendingUp className="h-4 w-4 text-blue-700" />
+                                <CardTitle className="text-sm font-medium text-blue-900 dark:text-blue-100">Total Gasto (LTV)</CardTitle>
+                                <TrendingUp className="h-4 w-4 text-blue-700 dark:text-blue-300" />
                             </CardHeader>
                             <CardContent>
-                                <div className="text-2xl font-bold text-blue-900">
-                                    {(customer.ltv || 0).toLocaleString("pt-BR", { style: "currency", currency: "BRL" })}
+                                <div className="text-2xl font-bold text-blue-900 dark:text-blue-100">
+                                    {metrics.ltv.toLocaleString("pt-BR", { style: "currency", currency: "BRL" })}
                                 </div>
-                                <div className="text-xs text-blue-700 mt-1 flex flex-col">
-                                    <span>Real: {(customer.spentReal || 0).toLocaleString("pt-BR", { style: "currency", currency: "BRL" })}</span>
-                                    <span>Crédito: {(customer.spentCredit || 0).toLocaleString("pt-BR", { style: "currency", currency: "BRL" })}</span>
-                                </div>
-                            </CardContent>
-                        </Card>
-                        <Card className="bg-purple-50 border-purple-100">
-                            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                                <CardTitle className="text-sm font-medium text-purple-900">Ticket Médio</CardTitle>
-                                <ShoppingBag className="h-4 w-4 text-purple-700" />
-                            </CardHeader>
-                            <CardContent>
-                                <div className="text-2xl font-bold text-purple-900">
-                                    {((customer.ltv || 0) / (customer.ordersCount || 1)).toLocaleString("pt-BR", { style: "currency", currency: "BRL" })}
+                                <div className="text-xs text-blue-700 dark:text-blue-300 mt-1 flex flex-col">
+                                    <span>Total em Pedidos</span>
                                 </div>
                             </CardContent>
                         </Card>
-                        <Card className="bg-green-50 border-green-100">
+                        <Card className="bg-purple-50 border-purple-100 dark:bg-purple-900/10 dark:border-purple-800">
                             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                                <CardTitle className="text-sm font-medium text-green-900">Créditos</CardTitle>
-                                <Wallet className="h-4 w-4 text-green-700" />
+                                <CardTitle className="text-sm font-medium text-purple-900 dark:text-purple-100">Ticket Médio</CardTitle>
+                                <ShoppingBag className="h-4 w-4 text-purple-700 dark:text-purple-300" />
                             </CardHeader>
                             <CardContent>
-                                <div className="text-2xl font-bold text-green-900">
+                                <div className="text-2xl font-bold text-purple-900 dark:text-purple-100">
+                                    {metrics.avgTicket.toLocaleString("pt-BR", { style: "currency", currency: "BRL" })}
+                                </div>
+                            </CardContent>
+                        </Card>
+                        <Card className="bg-green-50 border-green-100 dark:bg-green-900/10 dark:border-green-800">
+                            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                                <CardTitle className="text-sm font-medium text-green-900 dark:text-green-100">Créditos</CardTitle>
+                                <Wallet className="h-4 w-4 text-green-700 dark:text-green-300" />
+                            </CardHeader>
+                            <CardContent>
+                                <div className="text-2xl font-bold text-green-900 dark:text-green-100">
                                     {(customer.walletBalance || 0).toLocaleString("pt-BR", { style: "currency", currency: "BRL" })}
                                 </div>
-                                <p className="text-xs text-green-700 mt-1">
+                                <p className="text-xs text-green-700 dark:text-green-300 mt-1">
                                     Disponível para uso
                                 </p>
                             </CardContent>
@@ -290,21 +303,27 @@ export default function CustomerProfilePage() {
                                     </TableRow>
                                 </TableHeader>
                                 <TableBody>
-                                    {/* Mocking recent orders based on customer data */}
-                                    <TableRow className="cursor-pointer hover:bg-muted/50" onClick={() => handleOrderClick("#1024")}>
-                                        <TableCell className="font-medium">#1024</TableCell>
-                                        <TableCell>
-                                            {customer.lastOrderDate ? formatDistanceToNow(new Date(customer.lastOrderDate), { addSuffix: true, locale: ptBR }) : 'N/A'}
-                                        </TableCell>
-                                        <TableCell><Badge variant="outline">Concluído</Badge></TableCell>
-                                        <TableCell className="text-right">R$ 150,00</TableCell>
-                                    </TableRow>
-                                    <TableRow className="cursor-pointer hover:bg-muted/50" onClick={() => handleOrderClick("#1020")}>
-                                        <TableCell className="font-medium">#1020</TableCell>
-                                        <TableCell>há 2 meses</TableCell>
-                                        <TableCell><Badge variant="outline">Concluído</Badge></TableCell>
-                                        <TableCell className="text-right">R$ 89,90</TableCell>
-                                    </TableRow>
+                                    {/* Real Orders Mapping */}
+                                    {(customer.orders || []).length === 0 ? (
+                                        <TableRow>
+                                            <TableCell colSpan={4} className="text-center text-muted-foreground py-4">
+                                                Nenhum pedido encontrado.
+                                            </TableCell>
+                                        </TableRow>
+                                    ) : (
+                                        (customer.orders || []).slice(0, 5).map(order => (
+                                            <TableRow key={order.id} className="cursor-pointer hover:bg-muted/50" onClick={() => handleOrderClick(order.id)}>
+                                                <TableCell className="font-medium">#{order.id}</TableCell>
+                                                <TableCell>
+                                                    {order.createdAt ? formatDistanceToNow(new Date(order.createdAt), { addSuffix: true, locale: ptBR }) : 'N/A'}
+                                                </TableCell>
+                                                <TableCell><Badge variant="outline">{order.status}</Badge></TableCell>
+                                                <TableCell className="text-right">
+                                                    {parseFloat(order.total).toLocaleString("pt-BR", { style: "currency", currency: "BRL" })}
+                                                </TableCell>
+                                            </TableRow>
+                                        ))
+                                    )}
                                 </TableBody>
                             </Table>
                             <div className="mt-4 text-center">
@@ -449,21 +468,25 @@ export default function CustomerProfilePage() {
                             <CardTitle>Endereços</CardTitle>
                         </CardHeader>
                         <CardContent className="space-y-3 pt-4">
-                            {(customer.addresses || []).map(addr => (
-                                <div key={addr.id} className="border rounded p-3 text-sm relative">
-                                    {addr.default && <Badge variant="secondary" className="absolute top-2 right-2 text-[10px]">Padrão</Badge>}
-                                    <div className="font-medium">{addr.street}</div>
-                                    <div className="text-muted-foreground">{addr.city} - {addr.state}</div>
-                                    <div className="text-muted-foreground">{addr.zip}</div>
-                                </div>
-                            ))}
+                            {(customer.addresses || []).length === 0 ? (
+                                <div className="text-sm text-muted-foreground text-center py-2">Nenhum endereço cadastrado.</div>
+                            ) : (
+                                (customer.addresses || []).map(addr => (
+                                    <div key={addr.id} className="border rounded p-3 text-sm relative">
+                                        {addr.default && <Badge variant="secondary" className="absolute top-2 right-2 text-[10px]">Padrão</Badge>}
+                                        <div className="font-medium">{addr.street}</div>
+                                        <div className="text-muted-foreground">{addr.city} - {addr.state}</div>
+                                        <div className="text-muted-foreground">{addr.zip}</div>
+                                    </div>
+                                ))
+                            )}
                         </CardContent>
                     </Card>
 
                     {/* Wallet / Cashback */}
-                    <Card className="border-green-100 bg-green-50/30">
+                    <Card className="border-green-100 bg-green-50/30 dark:border-green-800 dark:bg-green-900/10">
                         <CardHeader>
-                            <CardTitle className="flex items-center gap-2 text-green-700">
+                            <CardTitle className="flex items-center gap-2 text-green-700 dark:text-green-300">
                                 <Wallet className="h-5 w-5" />
                                 Credits
                             </CardTitle>
@@ -472,13 +495,13 @@ export default function CustomerProfilePage() {
                             <div className="flex justify-between items-end">
                                 <div>
                                     <span className="text-sm text-muted-foreground">Saldo Atual</span>
-                                    <div className="text-3xl font-bold text-green-700">
+                                    <div className="text-3xl font-bold text-green-700 dark:text-green-300">
                                         {(customer.walletBalance || 0).toLocaleString("pt-BR", { style: "currency", currency: "BRL" })}
                                     </div>
                                 </div>
                                 <Dialog open={isBalanceModalOpen} onOpenChange={setIsBalanceModalOpen}>
                                     <DialogTrigger asChild>
-                                        <Button variant="outline" size="sm" className="border-green-200 text-green-700 hover:bg-green-50">
+                                        <Button variant="outline" size="sm" className="border-green-200 text-green-700 hover:bg-green-50 dark:border-green-800 dark:text-green-300 dark:hover:bg-green-900/20">
                                             Ajustar
                                         </Button>
                                     </DialogTrigger>
@@ -569,32 +592,32 @@ export default function CustomerProfilePage() {
                                                 return (
                                                     <TabsContent key={month} value={month} className="space-y-4">
                                                         <div className="grid grid-cols-3 gap-4">
-                                                            <Card className="bg-green-50 border-green-100">
+                                                            <Card className="bg-green-50 border-green-100 dark:bg-green-900/10 dark:border-green-800">
                                                                 <CardHeader className="pb-2">
-                                                                    <CardTitle className="text-sm font-medium text-green-900">Recebido</CardTitle>
+                                                                    <CardTitle className="text-sm font-medium text-green-900 dark:text-green-100">Recebido</CardTitle>
                                                                 </CardHeader>
                                                                 <CardContent>
-                                                                    <div className="text-2xl font-bold text-green-700">
+                                                                    <div className="text-2xl font-bold text-green-700 dark:text-green-300">
                                                                         +{received.toLocaleString("pt-BR", { style: "currency", currency: "BRL" })}
                                                                     </div>
                                                                 </CardContent>
                                                             </Card>
-                                                            <Card className="bg-blue-50 border-blue-100">
+                                                            <Card className="bg-blue-50 border-blue-100 dark:bg-blue-900/10 dark:border-blue-800">
                                                                 <CardHeader className="pb-2">
-                                                                    <CardTitle className="text-sm font-medium text-blue-900">Utilizado</CardTitle>
+                                                                    <CardTitle className="text-sm font-medium text-blue-900 dark:text-blue-100">Utilizado</CardTitle>
                                                                 </CardHeader>
                                                                 <CardContent>
-                                                                    <div className="text-2xl font-bold text-blue-700">
+                                                                    <div className="text-2xl font-bold text-blue-700 dark:text-blue-300">
                                                                         -{spent.toLocaleString("pt-BR", { style: "currency", currency: "BRL" })}
                                                                     </div>
                                                                 </CardContent>
                                                             </Card>
-                                                            <Card className="bg-red-50 border-red-100">
+                                                            <Card className="bg-red-50 border-red-100 dark:bg-red-900/10 dark:border-red-800">
                                                                 <CardHeader className="pb-2">
-                                                                    <CardTitle className="text-sm font-medium text-red-900">Expirado (Reset)</CardTitle>
+                                                                    <CardTitle className="text-sm font-medium text-red-900 dark:text-red-100">Expirado (Reset)</CardTitle>
                                                                 </CardHeader>
                                                                 <CardContent>
-                                                                    <div className="text-2xl font-bold text-red-700">
+                                                                    <div className="text-2xl font-bold text-red-700 dark:text-red-300">
                                                                         -{expired.toLocaleString("pt-BR", { style: "currency", currency: "BRL" })}
                                                                     </div>
                                                                 </CardContent>

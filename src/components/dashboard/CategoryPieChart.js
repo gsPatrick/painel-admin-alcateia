@@ -14,11 +14,32 @@ const COLORS = [
     '#f59e0b'  // Amber 500
 ];
 
-export function CategoryPieChart({ data }) {
+import { PieChart as PieChartIcon } from "lucide-react";
+
+export function CategoryPieChart({ data = [] }) {
     const [viewType, setViewType] = useState("category");
 
+    if (!data || data.length === 0) {
+        return (
+            <Card className="h-full shadow-sm border-border bg-card flex flex-col">
+                <CardHeader className="pb-2 flex flex-row items-center justify-between space-y-0">
+                    <div className="space-y-1">
+                        <CardTitle className="text-lg font-bold">Vendas</CardTitle>
+                        <CardDescription>Por Categoria</CardDescription>
+                    </div>
+                </CardHeader>
+                <CardContent className="flex-1 min-h-[300px] flex items-center justify-center">
+                    <div className="flex flex-col items-center justify-center text-muted-foreground">
+                        <PieChartIcon className="size-12 mb-4 opacity-20" />
+                        <p className="text-sm font-medium">Nenhuma categoria</p>
+                    </div>
+                </CardContent>
+            </Card>
+        );
+    }
+
     return (
-        <Card className="h-full shadow-lg border-border/50 bg-gradient-to-b from-white to-slate-50 dark:from-zinc-900 dark:to-zinc-950/50 flex flex-col">
+        <Card className="h-full shadow-sm border-border bg-card flex flex-col">
             <CardHeader className="pb-2 flex flex-row items-center justify-between space-y-0">
                 <div className="space-y-1">
                     <CardTitle className="text-lg font-bold">Vendas</CardTitle>
@@ -54,11 +75,11 @@ export function CategoryPieChart({ data }) {
                             </Pie>
                             <Tooltip
                                 contentStyle={{
-                                    backgroundColor: 'rgba(255, 255, 255, 0.9)',
-                                    borderColor: 'rgba(0,0,0,0.05)',
+                                    backgroundColor: 'var(--background)',
+                                    borderColor: 'var(--border)',
                                     borderRadius: '8px',
                                     boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
-                                    color: '#1e293b'
+                                    color: 'var(--foreground)'
                                 }}
                                 formatter={(value) => `R$ ${value.toLocaleString()}`}
                             />

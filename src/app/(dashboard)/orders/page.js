@@ -42,6 +42,7 @@ import AppService from "@/services/app.service";
 import { formatDistanceToNow } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { toast } from "sonner";
+import { getPaymentDetails } from "@/lib/formatters";
 
 export default function OrdersPage() {
     const [orders, setOrders] = useState([]);
@@ -82,13 +83,27 @@ export default function OrdersPage() {
         return matchesSearch;
     });
 
+    const getPaymentMethodDisplay = (order) => {
+        const details = getPaymentDetails(order);
+        const Icon = details.icon;
+
+        return (
+            <div className="flex flex-col">
+                <div className="flex items-center gap-1">
+                    <Icon className="h-3 w-3 text-muted-foreground" />
+                    <span className="text-xs font-medium">{details.label}</span>
+                </div>
+            </div>
+        );
+    };
+
     const getStatusBadge = (status) => {
         switch (status) {
             case "paid":
                 return <Badge className="bg-green-500 hover:bg-green-600">Pago</Badge>;
             case "pending":
                 return (
-                    <Badge variant="secondary" className="text-yellow-600 bg-yellow-100">
+                    <Badge variant="secondary" className="text-yellow-600 bg-yellow-100 dark:bg-yellow-900/30 dark:text-yellow-400">
                         Pendente
                     </Badge>
                 );
@@ -107,7 +122,7 @@ export default function OrdersPage() {
                 return <Badge className="bg-green-500 hover:bg-green-600">Entregue</Badge>;
             case "unfulfilled":
                 return (
-                    <Badge variant="secondary" className="text-yellow-600 bg-yellow-100">
+                    <Badge variant="secondary" className="text-yellow-600 bg-yellow-100 dark:bg-yellow-900/30 dark:text-yellow-400">
                         Não Enviado
                     </Badge>
                 );
@@ -227,7 +242,12 @@ export default function OrdersPage() {
                                                     </div>
                                                 </div>
                                             </TableCell>
-                                            <TableCell>{getStatusBadge(order.paymentStatus)}</TableCell>
+                                            <TableCell>
+                                                <div className="flex flex-col gap-1">
+                                                    {getStatusBadge(order.paymentStatus)}
+                                                    {getPaymentMethodDisplay(order)}
+                                                </div>
+                                            </TableCell>
                                             <TableCell>
                                                 {getFulfillmentBadge(order.fulfillmentStatus)}
                                             </TableCell>

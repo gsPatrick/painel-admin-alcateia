@@ -4,7 +4,7 @@
 import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { ResponsiveContainer, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend } from "recharts";
-import { Wallet, ArrowUpRight, ArrowDownLeft, Landmark, TrendingUp, TrendingDown } from "lucide-react";
+import { Wallet, ArrowUpRight, ArrowDownLeft, Landmark, TrendingUp, TrendingDown, LineChart as LineChartIcon, Users } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 import { ReportSupplierModal } from "./ReportSupplierModal";
@@ -39,7 +39,7 @@ export function ReportsFinanceTab({ data }) {
         <div className="space-y-6">
             {/* KPIs */}
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-                {data.kpis.map((kpi, i) => {
+                {data.kpis?.map((kpi, i) => {
                     const style = kpiStyles[i % kpiStyles.length];
                     return (
                         <Card
@@ -81,22 +81,29 @@ export function ReportsFinanceTab({ data }) {
                     <CardDescription>Comparativo anual de entradas e saídas para fornecedores.</CardDescription>
                 </CardHeader>
                 <CardContent>
-                    <div className="h-[350px] w-full">
-                        <ResponsiveContainer width="100%" height="100%">
-                            <LineChart data={data.revenue_vs_payouts} margin={{ top: 10, right: 30, left: 0, bottom: 0 }}>
-                                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="var(--border)" opacity={0.3} />
-                                <XAxis dataKey="name" stroke="#94a3b8" fontSize={12} tickLine={false} axisLine={false} />
-                                <YAxis stroke="#94a3b8" fontSize={12} tickLine={false} axisLine={false} tickFormatter={(value) => `R$${value / 1000} k`} />
-                                <Tooltip
-                                    contentStyle={{ backgroundColor: 'rgba(255, 255, 255, 0.9)', borderRadius: '8px', border: 'none', boxShadow: '0 4px 12px rgba(0,0,0,0.1)' }}
-                                    formatter={(value) => `R$ ${value.toLocaleString()} `}
-                                />
-                                <Legend verticalAlign="top" height={36} iconType="circle" />
-                                <Line type="monotone" dataKey="revenue" name="Receita Loja" stroke="#10b981" strokeWidth={3} dot={false} activeDot={{ r: 6 }} />
-                                <Line type="monotone" dataKey="payouts" name="Pagamento Fornecedores" stroke="#3b82f6" strokeWidth={3} dot={false} activeDot={{ r: 6 }} />
-                            </LineChart>
-                        </ResponsiveContainer>
-                    </div>
+                    {(!data.revenue_vs_payouts || data.revenue_vs_payouts.length === 0) ? (
+                        <div className="h-[350px] flex flex-col items-center justify-center text-muted-foreground">
+                            <LineChartIcon className="size-12 mb-4 opacity-20" />
+                            <p className="text-sm font-medium">Sem dados financeiros</p>
+                        </div>
+                    ) : (
+                        <div className="h-[350px] w-full">
+                            <ResponsiveContainer width="100%" height="100%">
+                                <LineChart data={data.revenue_vs_payouts} margin={{ top: 10, right: 30, left: 0, bottom: 0 }}>
+                                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="var(--border)" opacity={0.3} />
+                                    <XAxis dataKey="name" stroke="#94a3b8" fontSize={12} tickLine={false} axisLine={false} />
+                                    <YAxis stroke="#94a3b8" fontSize={12} tickLine={false} axisLine={false} tickFormatter={(value) => `R$${value / 1000} k`} />
+                                    <Tooltip
+                                        contentStyle={{ backgroundColor: 'rgba(255, 255, 255, 0.9)', borderRadius: '8px', border: 'none', boxShadow: '0 4px 12px rgba(0,0,0,0.1)' }}
+                                        formatter={(value) => `R$ ${value.toLocaleString()} `}
+                                    />
+                                    <Legend verticalAlign="top" height={36} iconType="circle" />
+                                    <Line type="monotone" dataKey="revenue" name="Receita Loja" stroke="#10b981" strokeWidth={3} dot={false} activeDot={{ r: 6 }} />
+                                    <Line type="monotone" dataKey="payouts" name="Pagamento Fornecedores" stroke="#3b82f6" strokeWidth={3} dot={false} activeDot={{ r: 6 }} />
+                                </LineChart>
+                            </ResponsiveContainer>
+                        </div>
+                    )}
                 </CardContent>
             </Card>
 
@@ -107,26 +114,33 @@ export function ReportsFinanceTab({ data }) {
                     <CardDescription>Clique no fornecedor para ver detalhes.</CardDescription>
                 </CardHeader>
                 <CardContent>
-                    <div className="space-y-4">
-                        {data.supplier_extract.map((supplier) => (
-                            <div
-                                key={supplier.id}
-                                className="flex items-center justify-between p-3 border-b border-border/50 last:border-0 hover:bg-muted/50 transition-colors cursor-pointer rounded-lg"
-                                onClick={() => setSelectedSupplier(supplier)}
-                            >
-                                <div>
-                                    <p className="font-medium text-sm">{supplier.name}</p>
-                                    <p className="text-xs text-muted-foreground">{supplier.sold_items} peças vendidas</p>
+                    {(!data.supplier_extract || data.supplier_extract.length === 0) ? (
+                        <div className="h-full flex flex-col items-center justify-center text-muted-foreground min-h-[150px]">
+                            <Users className="size-10 mb-3 opacity-20" />
+                            <p className="text-sm font-medium">Nenhum fornecedor encontrado</p>
+                        </div>
+                    ) : (
+                        <div className="space-y-4">
+                            {data.supplier_extract.map((supplier) => (
+                                <div
+                                    key={supplier.id}
+                                    className="flex items-center justify-between p-3 border-b border-border/50 last:border-0 hover:bg-muted/50 transition-colors cursor-pointer rounded-lg"
+                                    onClick={() => setSelectedSupplier(supplier)}
+                                >
+                                    <div>
+                                        <p className="font-medium text-sm">{supplier.name}</p>
+                                        <p className="text-xs text-muted-foreground">{supplier.sold_items} peças vendidas</p>
+                                    </div>
+                                    <div className="text-right">
+                                        <p className="font-bold font-mono text-sm">{supplier.to_receive}</p>
+                                        <Badge variant={supplier.status === 'Pago' ? 'default' : 'secondary'} className="mt-1 text-[10px]">
+                                            {supplier.status}
+                                        </Badge>
+                                    </div>
                                 </div>
-                                <div className="text-right">
-                                    <p className="font-bold font-mono text-sm">{supplier.to_receive}</p>
-                                    <Badge variant={supplier.status === 'Pago' ? 'default' : 'secondary'} className="mt-1 text-[10px]">
-                                        {supplier.status}
-                                    </Badge>
-                                </div>
-                            </div>
-                        ))}
-                    </div>
+                            ))}
+                        </div>
+                    )}
                 </CardContent>
             </Card>
 

@@ -37,6 +37,7 @@ const formSchema = z.object({
     usageLimit: z.coerce.number().min(0).optional(),
     limitPerCustomer: z.coerce.number().min(0).optional(),
     applyToConsigned: z.boolean().default(false),
+    isMain: z.boolean().default(false),
     startDate: z.date(),
     endDate: z.date().optional().nullable(),
 });
@@ -52,7 +53,9 @@ export function CouponForm({ initialData, onSubmit, isLoading }) {
             minOrderValue: 0,
             usageLimit: 0,
             limitPerCustomer: 1,
+            limitPerCustomer: 1,
             applyToConsigned: false,
+            isMain: false,
             startDate: new Date(),
             endDate: null,
         },
@@ -69,7 +72,24 @@ export function CouponForm({ initialData, onSubmit, isLoading }) {
 
     return (
         <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+            <form onSubmit={form.handleSubmit((data) => {
+                // Adapter: camelCase (Front) -> snake_case (API)
+                const payload = {
+                    code: data.code,
+                    description: data.description,
+                    type: data.type === 'percentage' ? 'percent' : data.type, // Enum conversion
+                    value: Number(data.value),
+                    min_purchase: Number(data.minOrderValue || 0),
+                    usage_limit: Number(data.usageLimit || 0),
+                    usage_count: 0, // Reset on create
+                    usage_count: 0, // Reset on create
+                    is_main: data.isMain, // Adapter
+                    start_date: data.startDate.toISOString(),
+                    end_date: data.endDate ? data.endDate.toISOString() : null,
+                    status: 'active'
+                };
+                onSubmit(payload);
+            })} className="space-y-8">
                 <div className="grid gap-6 md:grid-cols-2">
                     {/* Section A: Basic Definition */}
                     <Card className="border-l-4 border-l-blue-500 shadow-sm">
@@ -246,6 +266,28 @@ export function CouponForm({ initialData, onSubmit, isLoading }) {
                                                 checked={field.value}
                                                 onCheckedChange={field.onChange}
                                                 className="data-[state=checked]:bg-amber-600"
+                                            />
+                                        </FormControl>
+                                    </FormItem>
+                                )}
+                            />
+                            <Separator />
+                            <FormField
+                                control={form.control}
+                                name="isMain"
+                                render={({ field }) => (
+                                    <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4 bg-purple-50 border-purple-200">
+                                        <div className="space-y-0.5">
+                                            <FormLabel className="text-base text-purple-900 font-semibold">Cupom Principal da Loja</FormLabel>
+                                            <FormDescription className="text-purple-700/80">
+                                                Este cupom aparecerá em destaque na Home/Banner.
+                                            </FormDescription>
+                                        </div>
+                                        <FormControl>
+                                            <Switch
+                                                checked={field.value}
+                                                onCheckedChange={field.onChange}
+                                                className="data-[state=checked]:bg-purple-600"
                                             />
                                         </FormControl>
                                     </FormItem>
