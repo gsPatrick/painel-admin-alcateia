@@ -54,7 +54,7 @@ function Hero3D() {
         <motion.div
             onMouseMove={handleMouseMove}
             style={{ perspective: 1000 }}
-            className="relative w-full max-w-5xl mx-auto mt-16 aspect-[16/9] flex items-center justify-center"
+            className="relative w-full max-w-5xl mx-auto mt-16 aspect-[4/5] md:aspect-[16/9] flex items-center justify-center"
         >
             <motion.div
                 style={{ rotateX, rotateY, transformStyle: "preserve-3d" }}
