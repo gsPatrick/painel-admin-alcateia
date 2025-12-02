@@ -12,6 +12,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useToast } from "@/hooks/use-toast";
+import useAuth from "@/hooks/useAuth";
 // Certifique-se de criar este provider ou remover a dependência se não existir ainda
 import { useSystemTheme } from "@/components/providers/SystemThemeProvider";
 
@@ -35,6 +36,8 @@ export default function LoginPage() {
     const systemLogo = themeConfig?.SYSTEM_LOGO || null;
     const primaryColor = themeConfig?.SYSTEM_COLOR_PRIMARY || "hsl(var(--primary))";
 
+    const { login } = useAuth();
+
     const handleInputChange = (e) => {
         const { name, value } = e.target;
         setFormData((prev) => ({ ...prev, [name]: value }));
@@ -44,35 +47,14 @@ export default function LoginPage() {
         e.preventDefault();
         setIsLoading(true);
 
-        try {
-            // Ajuste para usar a variável de ambiente
-            const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'https://geral-apilorenaecommerce.r954jc.easypanel.host/api';
+        const success = await login(formData.email, formData.password);
 
-            const response = await fetch(`${apiUrl}/users/login`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(formData)
-            });
-
-            const data = await response.json();
-
-            if (response.ok) {
-                localStorage.setItem('token', data.token);
-                localStorage.setItem('user', JSON.stringify(data.user));
-
-                setIsSuccess(true); // Dispara animação
-
-                setTimeout(() => {
-                    router.push("/dashboard");
-                }, 1800);
-
-            } else {
-                toast({ title: "Acesso Negado", description: data.error || "Credenciais inválidas.", variant: "destructive" });
-                setIsLoading(false);
-            }
-        } catch (error) {
-            console.error("Login error:", error);
-            toast({ title: "Erro de Conexão", description: "Verifique se a API está rodando.", variant: "destructive" });
+        if (success) {
+            setIsSuccess(true);
+            setTimeout(() => {
+                router.push("/dashboard");
+            }, 1800);
+        } else {
             setIsLoading(false);
         }
     };
