@@ -14,7 +14,22 @@ api.interceptors.request.use(
     (config) => {
         // Check if running in browser environment
         if (typeof window !== 'undefined') {
-            const token = localStorage.getItem('token');
+            // Try getting raw token first (legacy/direct login)
+            let token = localStorage.getItem('token');
+
+            // If not found, try getting from zustand store
+            if (!token) {
+                const storage = localStorage.getItem('auth-storage');
+                if (storage) {
+                    try {
+                        const parsed = JSON.parse(storage);
+                        token = parsed.state?.token;
+                    } catch (e) {
+                        console.error('Error parsing auth-storage', e);
+                    }
+                }
+            }
+
             if (token) {
                 config.headers.Authorization = `Bearer ${token}`;
             }
