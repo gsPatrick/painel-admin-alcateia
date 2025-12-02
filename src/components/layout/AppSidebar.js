@@ -31,7 +31,7 @@ const menuGroups = [
   {
     title: "Analytics",
     items: [
-      { title: "Dashboard", icon: LayoutDashboard, href: "/" },
+      { title: "Dashboard", icon: LayoutDashboard, href: "/dashboard" },
       { title: "Relatórios", icon: BarChart3, href: "/reports" }, // Placeholder
     ]
   },
