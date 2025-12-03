@@ -14,20 +14,22 @@ api.interceptors.request.use(
     (config) => {
         // Check if running in browser environment
         if (typeof window !== 'undefined') {
-            // Try getting raw token first (legacy/direct login)
-            let token = localStorage.getItem('token');
+            // Try getting from zustand store (auth-storage) FIRST as it is the current standard
+            const storage = localStorage.getItem('auth-storage');
+            let token = null;
 
-            // If not found, try getting from zustand store
-            if (!token) {
-                const storage = localStorage.getItem('auth-storage');
-                if (storage) {
-                    try {
-                        const parsed = JSON.parse(storage);
-                        token = parsed.state?.token;
-                    } catch (e) {
-                        console.error('Error parsing auth-storage', e);
-                    }
+            if (storage) {
+                try {
+                    const parsed = JSON.parse(storage);
+                    token = parsed.state?.token;
+                } catch (e) {
+                    console.error('Error parsing auth-storage', e);
                 }
+            }
+
+            // Fallback to legacy raw token if not found in store
+            if (!token) {
+                token = localStorage.getItem('token');
             }
 
             if (token) {

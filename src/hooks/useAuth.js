@@ -18,6 +18,9 @@ const useAuth = create(
                     const response = await api.post('/users/login', { email, password });
                     const { user, token } = response.data;
 
+                    // Clear legacy token if exists
+                    if (typeof window !== 'undefined') localStorage.removeItem('token');
+
                     // Ensure permissions are flattened for easier access if needed, 
                     // or just store the whole user object including Role.
                     set({
@@ -44,6 +47,12 @@ const useAuth = create(
 
             logout: () => {
                 set({ user: null, token: null, isAuthenticated: false });
+                if (typeof window !== 'undefined') {
+                    localStorage.removeItem('token'); // Clear legacy
+                    // We don't clear auth-storage manually because persist handles state, 
+                    // but we could localStorage.removeItem('auth-storage') if we wanted full wipe.
+                    // But setting state to null updates storage to null usually.
+                }
                 toast.info("Logout realizado");
                 if (typeof window !== 'undefined') {
                     window.location.href = '/login';
