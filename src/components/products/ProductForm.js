@@ -71,6 +71,7 @@ export function ProductForm({ initialData, onSubmit }) {
         if (initialData) {
             // 1. Images
             if (initialData.images && Array.isArray(initialData.images)) {
+                console.log('[ProductForm] Initializing images:', initialData.images);
                 setImages(initialData.images.map(img => {
                     if (typeof img === 'object' && img.src) return img.src;
                     return img;

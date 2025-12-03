@@ -125,6 +125,7 @@ export default function ProductsPage() {
     const getProductImage = (product) => {
         if (product.images && Array.isArray(product.images) && product.images.length > 0) {
             const img = product.images[0];
+            console.log(`[ProductList] Processing image for ${product.name}:`, img);
             // Handle object structure { src: '...' }
             if (typeof img === 'object' && img.src) return img.src;
             // Handle string structure
