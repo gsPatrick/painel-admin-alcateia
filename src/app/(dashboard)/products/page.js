@@ -123,7 +123,13 @@ export default function ProductsPage() {
     };
 
     const getProductImage = (product) => {
-        if (product.images && Array.isArray(product.images) && product.images.length > 0) return product.images[0];
+        if (product.images && Array.isArray(product.images) && product.images.length > 0) {
+            const img = product.images[0];
+            // Handle object structure { src: '...' }
+            if (typeof img === 'object' && img.src) return img.src;
+            // Handle string structure
+            if (typeof img === 'string') return img;
+        }
         if (product.image) return product.image;
         return "https://placehold.co/100?text=No+Image";
     };
