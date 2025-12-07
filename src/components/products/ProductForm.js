@@ -308,28 +308,41 @@ export function ProductForm({ initialData, onSubmit }) {
                 });
             }
 
+            // Helpers for safe parsing
+            const safeInt = (val) => {
+                if (val === undefined || val === null || val === '') return null;
+                const parsed = parseInt(val, 10);
+                return isNaN(parsed) ? null : parsed;
+            };
+
+            const safeFloat = (val) => {
+                if (val === undefined || val === null || val === '') return 0;
+                const parsed = parseFloat(val);
+                return isNaN(parsed) ? 0 : parsed;
+            };
+
             const mergedData = {
                 ...data,
-                categoryId: parseInt(selectedCategory),
-                subcategoryId: selectedSubcategory ? parseInt(selectedSubcategory) : null,
+                categoryId: safeInt(selectedCategory),
+                subcategoryId: safeInt(selectedSubcategory),
                 images: finalImages,
                 hasVariations,
                 attributes: hasVariations ? attributes : [],
                 variations: hasVariations ? variations : [],
                 // Fix numeric fields
-                price: data.price ? parseFloat(data.price) : 0,
-                comparePrice: data.comparePrice ? parseFloat(data.comparePrice) : 0,
-                cost: data.cost ? parseFloat(data.cost) : 0,
-                stock: data.stock ? parseInt(data.stock) : 0,
-                weight: data.weight ? parseFloat(data.weight) : 0,
+                price: safeFloat(data.price),
+                comparePrice: safeFloat(data.comparePrice),
+                cost: safeFloat(data.cost),
+                stock: safeInt(data.stock) || 0, // Stock defaults to 0 if null
+                weight: safeFloat(data.weight),
                 // Construct dimensions object
                 dimensions: {
-                    height: data.height ? parseFloat(data.height) : 0,
-                    width: data.width ? parseFloat(data.width) : 0,
-                    length: data.length ? parseFloat(data.length) : 0
+                    height: safeFloat(data.height),
+                    width: safeFloat(data.width),
+                    length: safeFloat(data.length)
                 },
-                brandId: selectedBrand ? parseInt(selectedBrand) : null,
-                brand: selectedBrand ? brands.find(b => b.id === parseInt(selectedBrand))?.name : null // Send name as fallback/legacy
+                brandId: safeInt(selectedBrand),
+                brand: selectedBrand ? brands.find(b => b.id === safeInt(selectedBrand))?.name : null // Send name as fallback/legacy
             };
 
             // Remove top-level dimension fields if they exist in data to avoid clutter/confusion
