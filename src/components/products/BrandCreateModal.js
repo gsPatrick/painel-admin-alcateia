@@ -24,6 +24,24 @@ export function BrandCreateModal({ open, onOpenChange, onCreate, onUpdate, initi
         }
     }, [initialData, open]);
 
+    const handleImageUpload = async (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+
+        setLoading(true);
+        try {
+            const res = await AppService.uploadFile(file);
+            // Assuming response is { url: '...' }
+            setLogo(res.url);
+            toast.success("Imagem enviada com sucesso!");
+        } catch (error) {
+            console.error("Failed to upload image:", error);
+            toast.error("Erro ao enviar imagem.");
+        } finally {
+            setLoading(false);
+        }
+    };
+
     const handleSubmit = async (e) => {
         e.preventDefault();
         if (!name.trim()) return;
@@ -66,14 +84,26 @@ export function BrandCreateModal({ open, onOpenChange, onCreate, onUpdate, initi
                         />
                     </div>
                     <div className="space-y-2">
-                        <Label htmlFor="brand-logo">URL do Logo</Label>
-                        <Input
-                            id="brand-logo"
-                            placeholder="https://..."
-                            value={logo}
-                            onChange={(e) => setLogo(e.target.value)}
-                            disabled={loading}
-                        />
+                        <Label htmlFor="brand-logo">Logo da Marca</Label>
+                        <div className="flex gap-4 items-center">
+                            {logo && (
+                                <img src={logo} alt="Preview" className="h-12 w-12 object-contain border rounded" />
+                            )}
+                            <div className="flex-1">
+                                <Label htmlFor="upload-logo" className="cursor-pointer inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-secondary text-secondary-foreground hover:bg-secondary/80 h-10 px-4 py-2 w-full">
+                                    {loading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
+                                    {logo ? "Alterar Imagem" : "Escolher Imagem"}
+                                </Label>
+                                <Input
+                                    id="upload-logo"
+                                    type="file"
+                                    accept="image/*"
+                                    className="hidden"
+                                    onChange={handleImageUpload}
+                                    disabled={loading}
+                                />
+                            </div>
+                        </div>
                     </div>
                     <DialogFooter>
                         <Button type="button" variant="outline" onClick={() => onOpenChange(false)} disabled={loading}>
