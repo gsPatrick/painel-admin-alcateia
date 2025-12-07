@@ -841,7 +841,29 @@ export function ProductForm({ initialData, onSubmit }) {
                             <p className="text-xs text-muted-foreground">Separe por vírgula.</p>
                         </div>
                     </CardContent>
+
                 </Card>
+
+                {/* Measurements (Read-Only) */}
+                {initialData?.measurements && initialData.measurements.length > 0 && (
+                    <Card>
+                        <CardHeader>
+                            <CardTitle>Medidas</CardTitle>
+                        </CardHeader>
+                        <CardContent>
+                            <Table>
+                                <TableBody>
+                                    {initialData.measurements.map((m, i) => (
+                                        <TableRow key={i}>
+                                            <TableCell className="font-medium">{m.nome}</TableCell>
+                                            <TableCell className="text-right">{m.valor}</TableCell>
+                                        </TableRow>
+                                    ))}
+                                </TableBody>
+                            </Table>
+                        </CardContent>
+                    </Card>
+                )}
 
                 {/* Shipping */}
                 <Card>
