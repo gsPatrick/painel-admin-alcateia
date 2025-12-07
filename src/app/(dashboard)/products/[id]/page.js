@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, use } from "react";
 import { ProductForm } from "@/components/products/ProductForm";
 import { Button } from "@/components/ui/button";
 import { ChevronLeft, Save } from "lucide-react";
@@ -10,6 +10,7 @@ import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 
 export default function EditProductPage({ params }) {
+    const { id } = use(params);
     const [product, setProduct] = useState(null);
     const [isLoading, setIsLoading] = useState(true);
     const [isSaving, setIsSaving] = useState(false);
@@ -19,12 +20,12 @@ export default function EditProductPage({ params }) {
         const fetchProduct = async () => {
             setIsLoading(true);
             try {
-                if (params.id === 'new') {
+                if (id === 'new') {
                     // Redirect 'new' to the dedicated new page if somehow reached here, 
                     // or just handle it. But we have a separate page.
                     router.replace('/products/new');
                 } else {
-                    const data = await AppService.getProductById(params.id);
+                    const data = await AppService.getProductById(id);
                     if (data) {
                         setProduct(data);
                     } else {
@@ -40,12 +41,12 @@ export default function EditProductPage({ params }) {
             }
         };
         fetchProduct();
-    }, [params.id, router]);
+    }, [id, router]);
 
     const handleUpdate = async (data) => {
         setIsSaving(true);
         try {
-            await AppService.updateProduct(params.id, data);
+            await AppService.updateProduct(id, data);
             toast.success("Produto atualizado com sucesso!");
             router.push("/products");
         } catch (error) {
@@ -64,7 +65,7 @@ export default function EditProductPage({ params }) {
         );
     }
 
-    if (!product && params.id !== 'new') return null;
+    if (!product && id !== 'new') return null;
 
     return (
         <div className="space-y-6 pb-10">
