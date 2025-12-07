@@ -9,10 +9,20 @@ import AppService from "@/services/app.service";
 import { toast } from "sonner";
 import { Loader2 } from "lucide-react";
 
-export function BrandCreateModal({ open, onOpenChange, onCreate }) {
+export function BrandCreateModal({ open, onOpenChange, onCreate, onUpdate, initialData }) {
     const [name, setName] = useState("");
     const [logo, setLogo] = useState("");
     const [loading, setLoading] = useState(false);
+
+    useEffect(() => {
+        if (initialData) {
+            setName(initialData.name);
+            setLogo(initialData.logo || "");
+        } else {
+            setName("");
+            setLogo("");
+        }
+    }, [initialData, open]);
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -20,10 +30,15 @@ export function BrandCreateModal({ open, onOpenChange, onCreate }) {
 
         setLoading(true);
         try {
-            const newBrand = await AppService.createBrand({ name, logo });
-            toast.success("Marca criada com sucesso!");
-            onCreate(newBrand);
-            setName("");
+            if (initialData) {
+                const updatedBrand = await AppService.updateBrand(initialData.id, { name, logo });
+                toast.success("Marca atualizada com sucesso!");
+                if (onUpdate) onUpdate(updatedBrand);
+            } else {
+                const newBrand = await AppService.createBrand({ name, logo });
+                toast.success("Marca criada com sucesso!");
+                if (onCreate) onCreate(newBrand);
+            }
             onOpenChange(false);
         } catch (error) {
             console.error("Failed to create brand:", error);
@@ -37,14 +52,14 @@ export function BrandCreateModal({ open, onOpenChange, onCreate }) {
         <Dialog open={open} onOpenChange={onOpenChange}>
             <DialogContent>
                 <DialogHeader>
-                    <DialogTitle>Criar Nova Marca</DialogTitle>
+                    <DialogTitle>{initialData ? "Editar Marca" : "Nova Marca"}</DialogTitle>
                 </DialogHeader>
                 <form onSubmit={handleSubmit} className="space-y-4">
                     <div className="space-y-2">
                         <Label htmlFor="brand-name">Nome da Marca</Label>
                         <Input
                             id="brand-name"
-                            placeholder="Ex: Nike, Adidas"
+                            placeholder="Ex: Nike, Zara..."
                             value={name}
                             onChange={(e) => setName(e.target.value)}
                             disabled={loading}
@@ -64,9 +79,8 @@ export function BrandCreateModal({ open, onOpenChange, onCreate }) {
                         <Button type="button" variant="outline" onClick={() => onOpenChange(false)} disabled={loading}>
                             Cancelar
                         </Button>
-                        <Button type="submit" disabled={loading || !name.trim()}>
-                            {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                            Criar Marca
+                        <Button type="submit" disabled={loading}>
+                            {loading ? "Salvando..." : (initialData ? "Salvar Alterações" : "Criar Marca")}
                         </Button>
                     </DialogFooter>
                 </form>

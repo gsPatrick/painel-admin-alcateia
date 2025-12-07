@@ -100,6 +100,16 @@ const AppService = {
         return response.data;
     },
 
+    updateBrand: async (id, data) => {
+        const response = await api.put(`/brands/${id}`, data);
+        return response.data;
+    },
+
+    deleteBrand: async (id) => {
+        const response = await api.delete(`/brands/${id}`);
+        return response.data;
+    },
+
     // --- Orders ---
     getOrders: async () => {
         const response = await api.get('/orders');

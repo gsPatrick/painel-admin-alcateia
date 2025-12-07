@@ -319,7 +319,14 @@ export default function ProductsPage() {
                                     </TableCell>
                                     <TableCell>
                                         <div className="flex flex-col">
-                                            <span className="font-medium">{product.name}</span>
+                                            <div className="flex items-center gap-2">
+                                                <span className="font-medium">{product.name}</span>
+                                                {product.is_accessory && (
+                                                    <Badge variant="secondary" className="text-[10px] h-5 px-1 bg-purple-100 text-purple-700 hover:bg-purple-200 border-purple-200">
+                                                        Acessório
+                                                    </Badge>
+                                                )}
+                                            </div>
                                             <span className="text-xs text-muted-foreground">{product.sku || 'N/A'}</span>
                                         </div>
                                     </TableCell>

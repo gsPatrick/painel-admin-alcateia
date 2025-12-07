@@ -23,7 +23,8 @@ import {
   Box,
   Tag,
   Menu,
-  Shield
+  Shield,
+  Star
 } from "lucide-react";
 
 // Menu Groups
@@ -40,6 +41,7 @@ const menuGroups = [
     items: [
       { title: "Produtos", icon: Package, href: "/products" },
       { title: "Categorias", icon: Layers, href: "/categories" },
+      { title: "Marcas", icon: Star, href: "/brands" },
       { title: "Pedidos", icon: ShoppingBag, href: "/orders" },
       { title: "Clientes", icon: Users, href: "/customers" },
       { title: "Marketing", icon: Tag, href: "/marketing/coupons" },
@@ -82,7 +84,8 @@ export function AppSidebar({ isCollapsed, setIsCollapsed }) {
   const getPermissionForRoute = (href) => {
     if (href === '/') return 'dashboard:read';
     if (href.startsWith('/products')) return 'products:read';
-    if (href.startsWith('/categories')) return 'products:read'; // Categories usually grouped with products or have their own
+    if (href.startsWith('/categories')) return 'products:read';
+    if (href.startsWith('/brands')) return 'products:read'; // Brands grouped with products
     if (href.startsWith('/orders')) return 'orders:read';
     if (href.startsWith('/customers')) return 'customers:read';
     if (href.startsWith('/marketing')) return 'coupons:read';
