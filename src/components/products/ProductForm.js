@@ -855,8 +855,8 @@ export function ProductForm({ initialData, onSubmit }) {
                                 <TableBody>
                                     {initialData.measurements.map((m, i) => (
                                         <TableRow key={i}>
-                                            <TableCell className="font-medium">{m.nome}</TableCell>
-                                            <TableCell className="text-right">{m.valor}</TableCell>
+                                            <TableCell className="font-medium">{m.nome || m.name}</TableCell>
+                                            <TableCell className="text-right">{m.valor || m.value}</TableCell>
                                         </TableRow>
                                     ))}
                                 </TableBody>
