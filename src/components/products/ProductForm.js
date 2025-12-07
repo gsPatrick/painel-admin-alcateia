@@ -126,7 +126,10 @@ export function ProductForm({ initialData, onSubmit }) {
             height: "",
             width: "",
             length: "",
-            isPhysical: true
+            width: "",
+            length: "",
+            isPhysical: true,
+            is_accessory: false
         }
     });
 
@@ -804,6 +807,24 @@ export function ProductForm({ initialData, onSubmit }) {
                                     </Button>
                                 </SelectContent>
                             </Select>
+                        </div>
+
+                        {/* Accessory Toggle */}
+                        <div className="flex items-center justify-between pt-4 border-t">
+                            <div className="space-y-0.5">
+                                <Label>Acessório</Label>
+                                <p className="text-xs text-muted-foreground">Marcar como acessório</p>
+                            </div>
+                            <Controller
+                                control={control}
+                                name="is_accessory"
+                                render={({ field }) => (
+                                    <Switch
+                                        checked={field.value}
+                                        onCheckedChange={field.onChange}
+                                    />
+                                )}
+                            />
                         </div>
 
                         {/* Subcategory Field (Visible only if category selected) */}

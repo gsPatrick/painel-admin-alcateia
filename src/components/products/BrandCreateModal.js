@@ -11,6 +11,7 @@ import { Loader2 } from "lucide-react";
 
 export function BrandCreateModal({ open, onOpenChange, onCreate }) {
     const [name, setName] = useState("");
+    const [logo, setLogo] = useState("");
     const [loading, setLoading] = useState(false);
 
     const handleSubmit = async (e) => {
@@ -19,7 +20,7 @@ export function BrandCreateModal({ open, onOpenChange, onCreate }) {
 
         setLoading(true);
         try {
-            const newBrand = await AppService.createBrand({ name });
+            const newBrand = await AppService.createBrand({ name, logo });
             toast.success("Marca criada com sucesso!");
             onCreate(newBrand);
             setName("");
@@ -46,6 +47,16 @@ export function BrandCreateModal({ open, onOpenChange, onCreate }) {
                             placeholder="Ex: Nike, Adidas"
                             value={name}
                             onChange={(e) => setName(e.target.value)}
+                            disabled={loading}
+                        />
+                    </div>
+                    <div className="space-y-2">
+                        <Label htmlFor="brand-logo">URL do Logo</Label>
+                        <Input
+                            id="brand-logo"
+                            placeholder="https://..."
+                            value={logo}
+                            onChange={(e) => setLogo(e.target.value)}
                             disabled={loading}
                         />
                     </div>
