@@ -2,7 +2,7 @@ import axios from 'axios';
 import { toast } from 'sonner';
 
 const api = axios.create({
-    baseURL: 'https://geral-apilorenaecommerce.r954jc.easypanel.host/api',
+    baseURL: 'https://n8n-hunterbd-api-ecommerce.r954jc.easypanel.host/api',
     timeout: 10000,
     headers: {
         'Content-Type': 'application/json',
