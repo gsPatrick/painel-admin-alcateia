@@ -180,7 +180,7 @@ export default function LoginPage() {
                                 id="email"
                                 name="email"
                                 type="email"
-                                placeholder="admin@alcateia.com"
+                                placeholder="patrick@gmail.com"
                                 required
                                 value={formData.email}
                                 onChange={handleInputChange}
